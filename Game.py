@@ -6,8 +6,8 @@ from ClientGUI import ClientGUI
 
 
 class Game:
-    def __init__(self, size, std_movement_speed, demo_player=False):
-        self.STDMOVEMENTSPEED = std_movement_speed
+    def __init__(self, size, demo_player=False):
+        self.STDMOVEMENTSPEED = (2, 0)
         self.WIDTH, self.HEIGHT = size
 
         self.BLACK = 0, 0, 0
@@ -47,22 +47,26 @@ class Game:
 
 
 
-#clientSocket = socket(AF_INET, SOCK_DGRAM)
 
+#Constants for use/interaction in/with pyglet library
 SIZE = WIDTH, HEIGHT = 600, 400
-speed = [2, 2]
-BLACK = 0, 0, 0
-WHITE = 255, 255, 255
 TIC_RATE = 1/60
 
+#Colors
+BLACK = 0, 0, 0
+WHITE = 255, 255, 255
 
-game = Game(SIZE, (2, 0), True)
+
+#Initializing window, adding stuffs to event-handler and running app.
+game = Game(SIZE, True)
 py.clock.schedule_interval(game.game_loop, TIC_RATE)
 game.run_game()
 
 
 
 '''
+clientSocket = socket(AF_INET, SOCK_DGRAM)
+
 clientSocket.settimeout(1)
 message = str(w)+','+str(d)+','+str(s)+','+str(a)
 message = message.encode()
