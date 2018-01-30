@@ -1,53 +1,85 @@
 from socket import *
-import pygame, sys, time
+import pyglet as py
+import sys, time
 from Player import Player
+from ClientGUI import ClientGUI
 
-clientSocket = socket(AF_INET, SOCK_DGRAM)
 
-pygame.init()
+class Game:
+    def __init__(self, size, std_movement_speed, demo_player=False):
+        self.STDMOVEMENTSPEED = std_movement_speed
+        self.WIDTH, self.HEIGHT = size
+
+        self.BLACK = 0, 0, 0
+        self.WHITE = 255, 255, 255
+
+        self.sprite_x = 50
+        self.sprite_y = 50
+
+        self.players = []
+
+
+        self.WINDOW = ClientGUI(size, self)
+        py.gl.glClearColor(1, 1, 1, 1)
+        self.keys = py.window.key.KeyStateHandler()
+        self.WINDOW.push_handlers(self.keys)
+
+        if demo_player:
+            demo_player_image = py.image.load('testSprite.png')
+            demo_player_sprite = py.sprite.Sprite(demo_player_image)
+            self.scale_sprite(demo_player_sprite)
+            self.demo_player = Player(demo_player_sprite, 'McFace', (py.window.key.UP, py.window.key.RIGHT, py.window.key.DOWN, py.window.key.LEFT))
+            self.WINDOW.add_entity(self.demo_player)
+
+
+    def run_game(self):
+        py.app.run()
+
+    def scale_sprite(self, sprite):
+        x_scale = self.sprite_x/sprite.width
+        y_scale = self.sprite_y/sprite.height
+
+        sprite.scale_x = x_scale
+        sprite.scale_y = y_scale
+
+    def game_loop(self, dt):
+        self.demo_player.move(self.keys)
+
+
+
+#clientSocket = socket(AF_INET, SOCK_DGRAM)
 
 SIZE = WIDTH, HEIGHT = 600, 400
 speed = [2, 2]
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
-DISPLAYSURFACE = pygame.display.set_mode(SIZE)
+TIC_RATE = 1/60
 
-pKeys = [pygame.K_w, pygame.K_d, pygame.K_s, pygame.K_a]
-p = Player(pygame.transform.scale(pygame.image.load("testSprite.png"), (50, 50)), "Dickbutt", pKeys, pygame, SIZE)
 
-while 1:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
+game = Game(SIZE, (2, 0), True)
+py.clock.schedule_interval(game.game_loop, TIC_RATE)
+game.run_game()
 
-    DISPLAYSURFACE.fill(WHITE)
-    keys = pygame.key.get_pressed()
-    
-    w = 0
-    d = 0
-    s = 0
-    a = 0
-    if keys[pygame.K_w]: w = 1
-    if keys[pygame.K_d]: d = 1
-    if keys[pygame.K_s]: s = 1
-    if keys[pygame.K_a]: a = 1
 
-    clientSocket.settimeout(1)
 
-    message = str(w)+','+str(d)+','+str(s)+','+str(a)
-    message = message.encode()
-    addr = ("antoncarlsson.se", 12000)
-    clientSocket.sendto(message, addr)
-    try:
-        data, server = clientSocket.recvfrom(1024)
-        print (data)
-        
-    except timeout:
-        print ('REQUEST TIMED OUT')
-    
-    p.generateMovementSpeed(keys)
-    p.drawPlayer(DISPLAYSURFACE)
-    pygame.display.flip()
-    time.sleep(0.1/10)
+'''
+clientSocket.settimeout(1)
+message = str(w)+','+str(d)+','+str(s)+','+str(a)
+message = message.encode()
+addr = ("antoncarlsson.se", 12000)
+clientSocket.sendto(message, addr)
+try:
+data, server = clientSocket.recvfrom(1024)
+print (data)
+
+except timeout:
+print ('REQUEST TIMED OUT')
+
+p.generateMovementSpeed(keys)
+p.drawPlayer(DISPLAYSURFACE)
+pygame.display.flip()
+time.sleep(0.1/10)
 
 
 clientSocket.close()
+'''
