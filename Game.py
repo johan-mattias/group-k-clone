@@ -49,4 +49,5 @@ while 1:
     pygame.display.flip()
     time.sleep(0.1/10)
 
+
 clientSocket.close()
