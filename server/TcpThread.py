@@ -25,7 +25,7 @@ class TcpThread:
         print("Connected to", self.remoteAddress)
         
     def receiveTcpPacket(self):
-        data = self.connection.recv(1024)
+        data = self.socket.recv(1024)
         
         return data
 
