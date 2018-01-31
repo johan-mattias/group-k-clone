@@ -11,25 +11,25 @@ class TcpThread:
         self.socket.bind(('', self.port))
         
 
-    def acceptRemoteSocket(self):
+    def accept(self):
         self.socket.listen(1)
         self.connection, self.remoteAddress = self.socket.accept()
 
         print(self.remoteAddress, "connected")
         return self.remoteAddress
 
-    def connectRemoteSocket(self, address):
+    def connect(self, address):
         self.remoteAddress = address
         self.socket.connect(self.remoteAddress)
         
         print("Connected to", self.remoteAddress)
         
-    def receiveTcpPacket(self):
+    def receive(self):
         data = self.socket.recv(1024)
         
         return data
 
-    def sendTcpPacket(self, data):
+    def send(self, data):
         self.socket.send(data)
         
         
