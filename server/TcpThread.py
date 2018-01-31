@@ -8,20 +8,23 @@ class TcpThread:
         self.remoteAddress = None
         
         self.socket = socket(AF_INET, SOCK_STREAM)
-        self.socket.bind(('', self.port))
-        self.socket.listen(1)
+        #self.socket.bind(('', self.port))
+        #self.socket.listen(1)
 
     def acceptRemoteSocket(self):
         self.connection, self.remoteAddress = self.socket.accept()
 
+        print(self.remoteAddress, "connected")
         return self.remoteAddress
 
     def connectRemoteSocket(self, address):
         self.remoteAddress = address
-        self.socket.connect(address)
+        self.socket.connect(self.remoteAddress)
+        
+        print("Connected to", self.remoteAddress)
         
     def receiveTcpPacket(self):
-        data = self.connection.revc(1024)
+        data = self.connection.recv(1024)
         
         return data
 
