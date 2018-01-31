@@ -25,7 +25,10 @@ class TcpThread:
         print("Connected to", self.remoteAddress)
         
     def receive(self):
-        data = self.socket.recv(1024)
+        if (self.connection == None):
+            data = self.socket.recv(1024)
+        else:
+            data = self.connection.recv(1024)
         
         return data
 
