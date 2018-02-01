@@ -1,6 +1,5 @@
-from socket import *
 import pyglet as py
-import sys, time, threading
+import threading
 from Player import Player
 from ClientGUI import ClientGUI
 

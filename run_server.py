@@ -1,4 +1,4 @@
-import network.UdpHandler, network.TcpHandler, utils
+from network import utils, TcpHandler, UdpHandler
 import math, time
 
 tcp = TcpHandler.TcpHandler()

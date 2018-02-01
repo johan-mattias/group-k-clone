@@ -1,4 +1,5 @@
-import network.TcpHandler, network.UdpHandler, snider_glider.Game, snider_glider.ClientGUI, snider_glider.Player
+from network import TcpHandler, UdpHandler
+from snider_glider import Game, ClientGUI, Player
 import threading, queue
 
 class NetworkHandler(threading.Thread):
