@@ -1,4 +1,12 @@
 from usermanager import UserManager
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def home():
+    return "Home page"
 
 
 def main():
@@ -23,4 +31,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+    app.run(ssl_context=('cert.pem', 'key.pem'))
     main()
