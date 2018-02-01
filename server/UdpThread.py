@@ -10,11 +10,11 @@ class UdpThread:
         self.socket = socket(AF_INET, SOCK_DGRAM)
         self.socket.bind(('', self.port))
         
-    def receiveUdpPacket(self):
+    def receive(self):
         data, address = self.socket.recvfrom(1024)
 
         return address, UdpData.unpackUserData(data)
 
-    def sendUdpPacket(self, address, data):
+    def send(self, address, data):
         self.socket.sendto(UdpData.packUserData(data), address)
         
