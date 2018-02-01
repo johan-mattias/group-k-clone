@@ -4,6 +4,7 @@ Login class module.
 
 import datetime
 import jwt
+from token_blacklist import TokenBlacklist
 
 SECRET_KEY = 'SECRET_KEY'
 
@@ -41,6 +42,8 @@ class Login():
         """
         try:
             payload = jwt.decode(jwt=auth_token, key=SECRET_KEY)
+            if TokenBlacklist.check_blacklist(auth_token):
+                return 'Token blacklisted. Please log in again.'
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature expired. Please log in again.'
