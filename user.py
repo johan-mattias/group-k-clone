@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String, Sequence, Binary
-from sqlalchemy.ext.declarative import declarative_base
+from base import Base
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 import bcrypt
-
-Base = declarative_base()
 
 
 class User(Base):

@@ -1,16 +1,12 @@
-from user import Base, User
-from sqlalchemy import create_engine, exc, orm
-
-PATH_TO_DATABASE = "test.db"
+from user import User
+from databasemanager import DatabaseManager
+from sqlalchemy import exc, orm
 
 
 class UserManager:
     def __init__(self):
-        engine = create_engine('sqlite:///' + PATH_TO_DATABASE)
-        Base.metadata.create_all(engine)
-
-        Session = orm.sessionmaker(bind=engine)
-        self.session = Session()
+        dbm = DatabaseManager()
+        self.session = dbm.session
 
     def __commit(self):
         try:

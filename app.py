@@ -1,4 +1,4 @@
-from UserManager import UserManager
+from usermanager import UserManager
 
 
 def main():
