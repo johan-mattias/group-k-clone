@@ -1,6 +1,6 @@
 from socket import *
 from struct import *
-import utils
+import network.utils as utils
 
 class UdpHandler:
 

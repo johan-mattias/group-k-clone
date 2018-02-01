@@ -1,5 +1,5 @@
 from socket import *
-import utils
+import network.utils as utils
 
 class TcpHandler:
 

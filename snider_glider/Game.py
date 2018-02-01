@@ -1,7 +1,7 @@
 import pyglet as py
 import threading
-from Player import Player
-from ClientGUI import ClientGUI
+from snider_glider.Player import Player
+from snider_glider.ClientGUI import ClientGUI
 
 
 class Game(threading.Thread):
