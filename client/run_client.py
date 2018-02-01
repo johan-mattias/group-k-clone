@@ -1,8 +1,5 @@
-import TcpThread, UdpThread, Game, ClientGUI, Player, threading, queue
-
-
-exitFlag = 0
-
+import TcpHandler, UdpHandler, Game, ClientGUI, Player,
+import threading, queue
 
 class NetworkHandler(threading.Thread):
     def __init__(self, threadID, name, udp_handler, tcp_handler, data_queue):
@@ -15,25 +12,23 @@ class NetworkHandler(threading.Thread):
 
     def run(self):
         print("initializing udp receiving")
+        udp_port = self.udp_handler.port
         self.tcp_handler.connect()
-        self.tcp_handler.send(b'12000')
+        self.tcp_handler.send(str(udp_port).encode())
         while 1:
-            address, data = self.udp_handler.receiveUdpPacket()
+            address, data = self.udp_handler.receive()
             x_pos = data['xv']
             y_pos = data['yv']
             self.data_queue.put((x_pos, y_pos))
             print("X: " + str(x_pos) + " - Y:" + str(y_pos))
 
 
-REMOTE_URL = "antoncarlsson.se"
-REMOTE_UDP_PORT = 12000
-REMOTE_TCP_PORT = 12001
-LOCAL_TCP_PORT = 12012
+SERVER_TCP_ADDRESS = ("antoncarlsson.se", 12000)
 
 
 def main():
-    udp_handler = UdpThread.UdpThread(REMOTE_UDP_PORT)
-    tcp_handler = TcpThread.TcpThread(LOCAL_TCP_PORT, (REMOTE_URL, REMOTE_TCP_PORT))
+    udp_handler = UdpHandler.UdpHandler()
+    tcp_handler = TcpHandler.TcpHandler(SERVER_TCP_ADDRESS)
 
     data_queue = queue.Queue(100)
 
