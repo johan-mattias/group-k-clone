@@ -1,19 +1,14 @@
-from user import Base, User
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine('sqlite:///:memory:')
-Base.metadata.create_all(engine)
+from UserManager import UserManager
 
 
 def main():
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    user1 = User(username="Anton", plaintext_password="asdf")
-    session.add(user1)
-    session.commit()
-    user1get = session.query(User).get(1)
-    print(user1get.id, user1get.username, user1get.password)
+    um = UserManager()
+    um.create_user("Anton", "asdf")
+    um.create_user("Kasper", "lol123")
+    anton = um.get_user_by_id(1)
+    print(anton.id, anton.username, anton.password)
+    kasper = um.get_user_by_username("Kasper")
+    print(kasper.id, kasper.username, kasper.password)
 
 
 if __name__ == "__main__":
