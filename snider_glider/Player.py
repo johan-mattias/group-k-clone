@@ -13,6 +13,7 @@ class Player:
         self.left = keys[3]
         self.move_rate = 4
 
+
     def generateMovementSpeed(self, keys):
         m1 = (0, 0)
         m2 = (0, 0)
@@ -28,6 +29,7 @@ class Player:
 
 
     def drawPlayer(self, window):
+        self.sprite.position = self.position
         self.sprite.draw()
     
     def draw(self, py):
@@ -36,11 +38,9 @@ class Player:
     def move(self, keys):
         self.generateMovementSpeed(keys)
         self.position = tuple(map(sum, zip(self.position, self.movementSpeed)))
-        self.sprite.position = self.position
 
     def set_position(self, pos):
         self.position = pos
-        self.sprite.position = self.position
 
 
 

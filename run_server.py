@@ -1,4 +1,4 @@
-import UdpHandler, TcpHandler, Utils
+import snider_glider.UdpHandler, snider_glider.TcpHandler, utils
 import math, time
 
 tcp = TcpHandler.TcpHandler()
@@ -14,5 +14,5 @@ angle = 0
 while True:
     x, y = math.cos(angle)*50 + 200, math.sin(angle)*50 + 200
     angle += math.pi/30
-    udp.send((address[0], port), (Utils.unixtime(), int(x), int(y)))
+    udp.send((address[0], port), (utils.unixtime(), int(x), int(y)))
     time.sleep(1/60)

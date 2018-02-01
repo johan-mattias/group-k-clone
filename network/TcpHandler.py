@@ -1,5 +1,5 @@
 from socket import *
-import Utils
+import utils
 
 class TcpHandler:
 
@@ -8,7 +8,7 @@ class TcpHandler:
         self.remote_address = remote_address
 
         self.socket = socket(AF_INET, SOCK_STREAM)
-        self.port = Utils.get_free_port()
+        self.port = utils.get_free_port()
         self.socket.bind(('', self.port))
         
 
