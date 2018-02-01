@@ -1,21 +1,26 @@
 from socket import *
 import pyglet as py
-import sys, time
+import sys, time, threading
 from Player import Player
 from ClientGUI import ClientGUI
 
 
-class Game:
-    def __init__(self, size, demo_player=False):
+class Game(threading.Thread):
+
+    def __init__(self,thread_id, thread_name, data_queue, size=(600, 400),tic_rate=1/60, demo_player=False):
+        threading.Thread.__init__(self)
+        self.thread_id = thread_id
+        self.thread_name = thread_name
+        self.data_queue = data_queue
+
         self.STDMOVEMENTSPEED = (2, 0)
         self.WIDTH, self.HEIGHT = size
-
+        self.TIC_RATE = tic_rate
 
         self.sprite_width = 50
         self.sprite_height = 50
 
         self.players = []
-
 
         self.WINDOW = ClientGUI(size, self)
         py.gl.glClearColor(1, 1, 1, 1)
@@ -29,7 +34,6 @@ class Game:
             self.demo_player = Player(demo_player_sprite, 'McFace', (py.window.key.UP, py.window.key.RIGHT, py.window.key.DOWN, py.window.key.LEFT))
             self.WINDOW.add_entity(self.demo_player)
 
-
     def run_game(self):
         py.app.run()
 
@@ -41,47 +45,14 @@ class Game:
         sprite.scale_y = y_scale
 
     def game_loop(self, dt):
+        self.demo_player.set_position(self.data_queue.get())
         self.demo_player.move(self.keys)
 
+    def run(self):
+        py.clock.schedule_interval(self.game_loop, self.TIC_RATE)
+        self.run_game()
 
+    #Colors
+    BLACK = 0, 0, 0
+    WHITE = 255, 255, 255
 
-
-#Constants for use/interaction in/with pyglet library
-SIZE = WIDTH, HEIGHT = 600, 400
-TIC_RATE = 1/60
-
-#Colors
-BLACK = 0, 0, 0
-WHITE = 255, 255, 255
-
-
-#Initializing window, adding stuffs to event-handler and running app.
-game = Game(SIZE, True)
-py.clock.schedule_interval(game.game_loop, TIC_RATE)
-game.run_game()
-
-
-
-'''
-clientSocket = socket(AF_INET, SOCK_DGRAM)
-
-clientSocket.settimeout(1)
-message = str(w)+','+str(d)+','+str(s)+','+str(a)
-message = message.encode()
-addr = ("antoncarlsson.se", 12000)
-clientSocket.sendto(message, addr)
-try:
-data, server = clientSocket.recvfrom(1024)
-print (data)
-
-except timeout:
-print ('REQUEST TIMED OUT')
-
-p.generateMovementSpeed(keys)
-p.drawPlayer(DISPLAYSURFACE)
-pygame.display.flip()
-time.sleep(0.1/10)
-
-
-clientSocket.close()
-'''

@@ -38,5 +38,9 @@ class Player:
         self.position = tuple(map(sum, zip(self.position, self.movementSpeed)))
         self.sprite.position = self.position
 
+    def set_position(self, pos):
+        self.position = pos
+        self.sprite.position = self.position
+
 
 
