@@ -1,10 +1,12 @@
 from user import Base, User
 from sqlalchemy import create_engine, exc, orm
 
+PATH_TO_DATABASE = "test.db"
+
 
 class UserManager:
     def __init__(self):
-        engine = create_engine('sqlite:///test.db')
+        engine = create_engine('sqlite:///' + PATH_TO_DATABASE)
         Base.metadata.create_all(engine)
 
         Session = orm.sessionmaker(bind=engine)
@@ -38,3 +40,6 @@ class UserManager:
             return self.session.query(User).filter_by(username=uname).one()
         except orm.exc.NoResultFound as e:
             print(e)
+
+    def get_all(self):
+        return self.session.query(User).all()
