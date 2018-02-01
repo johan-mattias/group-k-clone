@@ -1,13 +1,14 @@
 from socket import *
+import Utils
 
 class TcpHandler:
 
-    def __init__(self, port = 12001, remote_address=None):
-        self.port = port
+    def __init__(self, remote_address=None):
         self.connection = None
         self.remote_address = remote_address
-        
+
         self.socket = socket(AF_INET, SOCK_STREAM)
+        self.port = Utils.get_free_port()
         self.socket.bind(('', self.port))
         
 
@@ -35,5 +36,7 @@ class TcpHandler:
 
     def send(self, data):
         self.socket.send(data)
-        
+
+    def close(self):
+        self.socket.close()
         

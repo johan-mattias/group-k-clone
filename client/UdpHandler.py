@@ -1,13 +1,14 @@
 from socket import *
 from struct import *
+import Utils
 import sys, time
 
 class UdpHandler:
 
-    def __init__(self, port = 12000):
-        self.port = port
+    def __init__(self):
         
         self.socket = socket(AF_INET, SOCK_DGRAM)
+        self.port = Utils.get_free_port()
         self.socket.bind(('', self.port))
         
     def receive(self):
@@ -17,6 +18,9 @@ class UdpHandler:
 
     def send(self, address, data):
         self.socket.sendto(pack_user_data(data), address)
+
+    def close(self):
+        self.socket.close()
 
 
 '''********************************
