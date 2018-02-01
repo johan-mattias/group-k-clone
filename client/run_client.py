@@ -1,4 +1,4 @@
-import TcpHandler, UdpHandler, Game, ClientGUI, Player,
+import TcpHandler, UdpHandler, Game, ClientGUI, Player
 import threading, queue
 
 class NetworkHandler(threading.Thread):
