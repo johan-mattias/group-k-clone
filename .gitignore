@@ -128,3 +128,6 @@ ENV/
 ._.DS_Store
 
 # misc
+
+# vscode
+.vscode/
