@@ -1,6 +1,6 @@
 from socket import *
 from struct import *
-import utils
+from ... import utils
 import sys, time
 
 class UdpHandler:
