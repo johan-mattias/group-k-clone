@@ -1,43 +1,30 @@
-"""
-User class module.
-"""
+from sqlalchemy import Column, Integer, String, Sequence, Binary
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+import bcrypt
 
-from flask import Flask
-from flask_bcrypt import Bcrypt
+Base = declarative_base()
 
-app = Flask(__name__)
-flask_bcrypt = Bcrypt(app)
 
-class User():
-    """
-    User class.
-    """
-    def __init__(self, email, password):
-        self.email = email
-        self.password_hash = self.gen_hash(password)
+class User(Base):
+    __tablename__ = 'users'
 
-    def gen_hash(self, string):
-        """
-        Generates a hash of given string and returns the hash
-        """
-        return flask_bcrypt.generate_password_hash(
-            password=string,
-            rounds=12
-        ).decode('utf-8')
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(50), unique=True, nullable=False)
+    _password = Column(Binary(60), nullable=False)
 
-    def compare_candidate_with_password(self, candidate_password):
-        """
-        Compares candidate password with class password hash
-        """
-        return flask_bcrypt.check_password_hash(
-            pw_hash=self.password_hash,
-            password=candidate_password
-        )
+    def __init__(self, username, plaintext_password):
+        self.username = username
+        self.password = plaintext_password
 
-if __name__ == '__main__':
-    username = 'username'
-    password = 'password'
-    user = User(username, password)
-    print(user.email)
-    print(user.password_hash)
-    print(user.compare_candidate_with_password('password'))
+    @hybrid_property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, plaintext_password):
+        self._password = bcrypt.hashpw(plaintext_password.encode('utf8'), bcrypt.gensalt(15))
+
+    @hybrid_method
+    def is_correct_password(self, plaintext_password):
+        return bcrypt.checkpw(plaintext_password, self.password)
