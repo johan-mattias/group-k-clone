@@ -30,13 +30,13 @@ user_data_struct = 'qhh'
 user_data_struct_names = ('clientTime', 'xv', 'yv') 
 
 def pack_user_data(data):
-    return pack(userDataStruct, *data)
+    return pack(user_data_struct, *data)
     
-def unpack_user_data(binaryUserData):
-    data = unpack(userDataStruct, binaryUserData)
+def unpack_user_data(binary_user_data):
+    data = unpack(user_data_struct, binary_user_data)
 
     data_dict = {}
     for i in range(len(data)):
-        data_dict[userDataStructNames[i]] = data[i]
+        data_dict[user_data_struct_names[i]] = data[i]
 
     return data_dict
