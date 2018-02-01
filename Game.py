@@ -10,11 +10,9 @@ class Game:
         self.STDMOVEMENTSPEED = (2, 0)
         self.WIDTH, self.HEIGHT = size
 
-        self.BLACK = 0, 0, 0
-        self.WHITE = 255, 255, 255
 
-        self.sprite_x = 50
-        self.sprite_y = 50
+        self.sprite_width = 50
+        self.sprite_height = 50
 
         self.players = []
 
@@ -36,8 +34,8 @@ class Game:
         py.app.run()
 
     def scale_sprite(self, sprite):
-        x_scale = self.sprite_x/sprite.width
-        y_scale = self.sprite_y/sprite.height
+        x_scale = self.sprite_width/sprite.width
+        y_scale = self.sprite_height/sprite.height
 
         sprite.scale_x = x_scale
         sprite.scale_y = y_scale
