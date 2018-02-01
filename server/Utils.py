@@ -8,7 +8,7 @@ def get_free_port():
     port = 12000
     bound = False
 
-    while not bound::
+    while not bound:
         try:
             sock.bind(('', port))
             bound = True
