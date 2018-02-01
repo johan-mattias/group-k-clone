@@ -1,4 +1,4 @@
-import snider_glider.UdpHandler, snider_glider.TcpHandler, utils
+import network.UdpHandler, network.TcpHandler, utils
 import math, time
 
 tcp = TcpHandler.TcpHandler()
