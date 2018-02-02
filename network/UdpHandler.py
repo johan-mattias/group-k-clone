@@ -5,7 +5,6 @@ import network.utils as utils
 class UdpHandler:
 
     def __init__(self):
-        
         self.socket = socket(AF_INET, SOCK_DGRAM)
         self.port = utils.get_free_port()
         self.socket.bind(('', self.port))

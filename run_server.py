@@ -57,7 +57,7 @@ class UdpThread(threading.Thread):
         while True:
             #receive
             address, data = self.udp_handler.receive()
-            add_port(address)
+            self.add_port(address)
             print(data)
             #send
             x, y = math.cos(angle)*50 + 200, math.sin(angle)*50 + 200

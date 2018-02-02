@@ -9,6 +9,7 @@ class TcpHandler:
 
         self.socket = socket(AF_INET, SOCK_STREAM)
         self.port = utils.get_free_port()
+        print("free port", self.port)
         self.socket.bind(('', self.port))
         
 
