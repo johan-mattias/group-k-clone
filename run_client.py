@@ -1,5 +1,5 @@
 from network import TcpHandler, UdpHandler
-from snider_glider import Game, ClientGUI, Player
+#from snider_glider import Game, ClientGUI, Player
 import threading, queue
 
 SERVER_TCP_ADDRESS = ("antoncarlsson.se", 12000)

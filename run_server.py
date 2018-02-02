@@ -25,7 +25,7 @@ class MainTcpThread(threading.Thread):
         remote_address = self.tcp_handler.accept()
         new_tcp_handler = TcpHandler.TcpHandler()
         new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0])
-        new_port = new_tcp_thread.port
+        new_port = new_tcp_thread.tcp_handler.port
         new_tcp_thread.start()
         #TODO
         #check auth
