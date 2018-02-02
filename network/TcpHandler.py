@@ -8,7 +8,7 @@ class TcpHandler:
         self.remote_address = remote_address
 
         self.socket = socket(AF_INET, SOCK_STREAM)
-        self.port = utils.get_free_port()
+        self.port = utils.get_free_tcp_port()
         print("free port", self.port)
         self.socket.bind(('', self.port))
         

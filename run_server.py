@@ -75,7 +75,7 @@ class UdpThread(threading.Thread):
     def add_port(self, address):
         for ip in self.ip_without_port:
             if(address[0] == ip):
-                for i in len(self.address_list):
+                for i in range(len(self.address_list)):
                     if (address[0] == self.address_list[i][0]):
                         self.address_list[i][1] = address[1]
                         self.ip_without_port.remove(ip)
