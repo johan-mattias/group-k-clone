@@ -77,7 +77,7 @@ class UdpThread(threading.Thread):
             if(address[0] == ip):
                 for i in range(len(self.address_list)):
                     if (address[0] == self.address_list[i][0]):
-                        self.address_list[i][1] = address[1]
+                        self.address_list[i] = address
                         self.ip_without_port.remove(ip)
                         return
 
