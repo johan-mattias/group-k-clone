@@ -7,8 +7,8 @@ SERVER_TCP_ADDRESS = ("antoncarlsson.se", 12000)
 class NetworkHandler(threading.Thread):
     def __init__(self, data_queue):
         threading.Thread.__init__(self)
+        self.tcp_handler = TcpHandler.TcpHandler(SERVER_TCP_ADDRESS)        
         self.udp_handler = UdpHandler.UdpHandler()
-        self.tcp_handler = TcpHandler.TcpHandler(SERVER_TCP_ADDRESS)
         self.data_queue = data_queue
 
 

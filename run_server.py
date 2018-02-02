@@ -67,11 +67,11 @@ class UdpThread(threading.Thread):
                     self.udp_handler.send((address), (utils.unixtime(), int(x), int(y)))
             time.sleep(1/60)
                 
-    def add_accepted_ip(address):
+    def add_accepted_ip(self, address):
         self.address_list.append(address)
         self.ip_without_port.append(address[0])
 
-    def add_port(address):
+    def add_port(self, address):
         for ip in self.ip_without_port:
             if(address[0] == ip):
                 for i in len(self.address_list):

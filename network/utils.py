@@ -16,7 +16,7 @@ def get_free_port():
             port = port + 1
 
     sock.close()
-
+    sock = None
     return port
             
     
