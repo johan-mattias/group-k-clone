@@ -22,17 +22,18 @@ class MainTcpThread(threading.Thread):
         self.udp_thread = udp_thread
 
     def run(self):
-        remote_address = self.tcp_handler.accept()
-        new_tcp_handler = TcpHandler.TcpHandler()
-        new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0])
-        new_port = new_tcp_thread.tcp_handler.port
-        new_tcp_thread.start()
-        #TODO
-        #check auth
-        self.udp_thread.add_accepted_ip((remote_address[0], None))
-        #Send new_port to client
-        #close connection
-        #accept new connection
+        while True:
+            remote_address = self.tcp_handler.accept()
+            new_tcp_handler = TcpHandler.TcpHandler()
+            new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0])
+            new_port = new_tcp_thread.tcp_handler.port
+            new_tcp_thread.start()
+            #TODO
+            #check auth
+            self.udp_thread.add_accepted_ip((remote_address[0], None))
+            #Send new_port to client
+            #close connection
+            #accept new connection
 
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, remote_ip):
