@@ -57,6 +57,7 @@ class UdpThread(threading.Thread):
     def run(self):
         angle = 0
         while True:
+            print(address_list)
             #receive
             address, data = self.udp_handler.receive()
             self.add_port(address)

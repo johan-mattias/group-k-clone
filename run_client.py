@@ -10,6 +10,7 @@ class NetworkHandler(threading.Thread):
         self.tcp_handler = TcpHandler.TcpHandler(SERVER_TCP_ADDRESS)
         print("tcp", self.tcp_handler.port)
         self.udp_handler = UdpHandler.UdpHandler()
+        self.udp_handler.socket.settimeout(1)
         print("udp", self.udp_handler.port)        
         self.data_queue = data_queue
 
@@ -22,13 +23,15 @@ class NetworkHandler(threading.Thread):
             #send
             self.udp_handler.send(("antoncarlsson.se", 12000), (utils.unixtime(), 1, 1))
             #receive
-            address, data = self.udp_handler.receive()
-            x_pos = data['xv']
-            y_pos = data['yv']
-            self.data_queue.put((x_pos, y_pos))
-            print("X: " + str(x_pos) + " - Y:" + str(y_pos))
-
-
+            try:
+                address, data = self.udp_handler.receive()
+                x_pos = data['xv']
+                y_pos = data['yv']
+                self.data_queue.put((x_pos, y_pos))
+                print("X: " + str(x_pos) + " - Y:" + str(y_pos))
+            except:
+                print("didnt get")
+                
 def main():
     data_queue = queue.Queue(100)
 
