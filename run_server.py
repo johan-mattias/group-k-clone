@@ -55,6 +55,7 @@ class UdpThread(threading.Thread):
         self.ip_without_port = list()
 
     def run(self):
+        angle = 0
         while True:
             #receive
             address, data = self.udp_handler.receive()
