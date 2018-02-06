@@ -1,3 +1,5 @@
+import pickle
+
 class Player:
 
     def __init__(self, image, name, keys):
@@ -43,4 +45,14 @@ class Player:
         self.position = pos
 
 
+class PlayerTO:
 
+    def __init__(self, player_id, x, y, color, username):
+        self.player_id = player_id
+        self.x = x
+        self.y = y
+        self.color = color
+        self.username = username
+
+    def serialize(self):
+        return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
