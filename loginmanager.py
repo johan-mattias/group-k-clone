@@ -4,7 +4,7 @@ LoginManager class module.
 
 import datetime
 import jwt
-from token_blacklist import TokenBlacklist
+from token_blacklist import TokenBlacklistManager
 
 SECRET_KEY = 'SECRET_KEY'
 
@@ -13,7 +13,7 @@ class LoginManager():
     LoginManager class.
     """
     def __init__(self):
-        pass
+        self.tbm = TokenBlacklistManager()
 
     def encode_auth_token(self, user_id, days=7, minutes=0, seconds=0):
         """
@@ -26,22 +26,21 @@ class LoginManager():
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }
-            return jwt.encode(
+
+            token = jwt.encode(
                 payload=payload,
                 key=SECRET_KEY,
                 algorithm='HS256'
             )
+
+            return token
         except Exception as e:
             return e
 
-    @staticmethod
-    def decode_auth_token(auth_token):
-        """
-        Validates auth token
-        """
+    def decode_auth_token(self, token):
         try:
-            payload = jwt.decode(jwt=auth_token, key=SECRET_KEY)
-            if TokenBlacklist.check_blacklist(auth_token):
+            payload = jwt.decode(jwt=token, key=SECRET_KEY)
+            if self.tbm.check_blacklist(token):
                 return 'Token blacklisted. Please log in again.'
             return payload['sub']
         except jwt.ExpiredSignatureError:
@@ -54,5 +53,5 @@ if __name__ == '__main__':
     user_id = 999
     token = login.encode_auth_token(user_id)
     print('token', token)
-    payload_sub = login.decode_auth_token(token)
+    payload_sub = login.decode_auth_token(auth_token=token)
     print('payload_sub', payload_sub)

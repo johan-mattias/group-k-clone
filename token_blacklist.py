@@ -8,7 +8,7 @@ class _TokenBlacklist(Base):
     __tablename__ = 'blacklist_tokens'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String(500), unique=True, nullable=False)
+    token = Column(String(5000), unique=True, nullable=False)
     blacklisted_on = Column(DateTime, nullable=False)
 
     def __init__(self, token):
@@ -18,7 +18,7 @@ class _TokenBlacklist(Base):
     def __repr__(self):
         return '<id: token: {}'.format(self.token)
 
-class TokenBlackListManager():
+class TokenBlacklistManager():
     def __init__(self):
         dbm = DatabaseManager()
         self.session = dbm.session
@@ -36,10 +36,12 @@ class TokenBlackListManager():
         self.__commit()
 
     def check_blacklist(self, token):
-        q = self.session.query(_TokenBlacklist).filter(_TokenBlacklist.token==token)
-        return self.session.query(q.exists()).scalar()
+        try:
+            return self.session.query(_TokenBlacklist).filter_by(token=token.encode('utf-8')).one().token
+        except orm.exc.NoResultFound:
+            return False
 
 if __name__ == '__main__':
-    tknm = TokenBlackListManager()
+    tknm = TokenBlacklistManager()
     tknm.blacklist_token('123')
     print(tknm.check_blacklist('123'))

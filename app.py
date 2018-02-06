@@ -19,7 +19,7 @@ def register():
         return "Please enter a valid username", 400
     if password is None:
         return "Please enter a password", 400
-    if um.get_by_username(username):
+    if um.get_by_username(username) is not None:
         return "Username already exists, please choose another one", 400
 
     um.create_user(username, password)

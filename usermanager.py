@@ -40,6 +40,3 @@ class UserManager:
     def get_all(self):
         return self.session.query(User).all()
 
-    def exists(self, uname):
-        q = self.session.query(User).filter(User.username == uname)
-        return self.session.query(User).filter(q.exists()).scalar()
