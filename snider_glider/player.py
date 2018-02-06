@@ -1,8 +1,10 @@
 import pickle
 
+
 class Player:
 
-    def __init__(self, image, name, keys):
+    def __init__(self, image, name, keys, player_id=92):
+        self.player_id = player_id
         self.sprite = image
         self.movementSpeed = (0, 0)
         self.vSpeed = 0
@@ -14,7 +16,6 @@ class Player:
         self.down = keys[2]
         self.left = keys[3]
         self.move_rate = 4
-
 
     def generateMovementSpeed(self, keys):
         m1 = (0, 0)
@@ -28,7 +29,6 @@ class Player:
         if keys[self.left]:     m4 = (-self.move_rate, 0)
 
         self.movementSpeed = tuple(map(sum, zip(m1, m2, m3, m4)))
-
 
     def drawPlayer(self, window):
         self.sprite.position = self.position
@@ -44,15 +44,27 @@ class Player:
     def set_position(self, pos):
         self.position = pos
 
+    def to_transfer_object(self):
+        return PlayerTO(self.player_id, self.position[0], self.position[1], username=self.name)
+
 
 class PlayerTO:
 
-    def __init__(self, player_id, x, y, color, username):
+    def __init__(self, player_id, x=0, y=0, x_velocity=0, y_velocity=0, color=(0, 0, 0), username="shame"):
         self.player_id = player_id
         self.x = x
         self.y = y
+
+        self.x_velocity = x_velocity
+        self.y_velocity = y_velocity
+
         self.color = color
         self.username = username
 
     def serialize(self):
         return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def player_from_player_to(player_to):
+    new_player = Player(None, player_to.username, None)
+    return new_player

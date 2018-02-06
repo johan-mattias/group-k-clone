@@ -85,8 +85,11 @@ class UdpThread(threading.Thread):
 
 
 def main():
+    #Todo: Create comm object and give it to both network threads and GameThread when created.
+
     network = NetworkHandler()
     network.start()
+
 
 
 if __name__ == '__main__':
