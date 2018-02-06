@@ -35,26 +35,25 @@ def login():
     password = request.form.get('password')
     token = request.headers.get('authorization')
 
+    if token is not None:
+        sub = lm.decode_auth_token(token)
+        if um.get_by_id(sub) is not None:
+            return token, 200
+        return sub, 401
+
     if username is not None:
         user = um.get_by_username(username)
 
         if user is None:
             return "No such user exists", 401
 
-        if token is None:
-            if password is None:
-                return "Please enter a password", 401
+        if password is None:
+            return "Please enter a password", 401
 
-            if user.is_correct_password(password):
-                return lm.encode_auth_token(user_id = user.id), 200
-            else:
-                return "Wrong password", 401
+        if user.is_correct_password(password):
+            return lm.encode_auth_token(user_id = user.id), 200
         else:
-            sub = lm.decode_auth_token(token)
-            if sub == user.id:
-                return token, 200
-            else:
-                return sub, 401
+            return "Wrong password", 401
     return "Please enter a valid username and password", 401
 
 @app.route("/auth/logout")
