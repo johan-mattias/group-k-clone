@@ -25,4 +25,10 @@ class User(Base):
 
     @hybrid_method
     def is_correct_password(self, plaintext_password):
-        return bcrypt.checkpw(plaintext_password, self.password)
+        return bcrypt.checkpw(plaintext_password.encode('utf8'), self.password)
+
+if __name__ == '__main__':
+    user = User(username='username', plaintext_password='password')
+    print('user.username', user.username)
+    print('user.password', user.password)
+    print('user.is_correct_password(plaintext_password=password)', user.is_correct_password('password'))
