@@ -1,5 +1,5 @@
 """
-Login class module.
+LoginManager class module.
 """
 
 import datetime
@@ -8,9 +8,9 @@ from token_blacklist import TokenBlacklist
 
 SECRET_KEY = 'SECRET_KEY'
 
-class Login():
+class LoginManager():
     """
-    Login class.
+    LoginManager class.
     """
     def __init__(self):
         pass
