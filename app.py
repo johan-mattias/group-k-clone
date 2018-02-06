@@ -4,7 +4,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 um = UserManager()
-loginmanager = LoginManager()
+lm = LoginManager()
 
 @app.route("/")
 def home():
@@ -12,19 +12,46 @@ def home():
 
 @app.route("/auth/register", methods=["POST"])
 def register():
-    username = request.form['username']
-    password = request.form['password']
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    # TODO: check that username doesn't already exist
 
     um.create_user(username, password)
     new_user = um.get_by_username(username)
 
-    token = loginmanager.encode_auth_token(new_user.id)
+    token = lm.encode_auth_token(new_user.id)
 
     return token
 
-@app.route("/auth/login")
+@app.route("/auth/login", methods=["POST"])
 def login():
-    return "Login page"
+
+    username = request.form.get('username')
+    password = request.form.get('password')
+    token = request.headers.get('authorization')
+
+    if username is not None:
+        user = um.get_by_username(username)
+
+        if user is None:
+            return "No such user exists", 401
+
+        if token is None:
+            if password is None:
+                return "Please enter a password", 401
+
+            if user.is_correct_password(password):
+                return lm.encode_auth_token(user_id = user.id), 200
+            else:
+                return "Wrong password", 401
+        else:
+            sub = lm.decode_auth_token(token)
+            if sub == user.id:
+                return token, 200
+            else:
+                return sub, 401
+    return "Please enter a valid username and password", 401
 
 @app.route("/auth/logout")
 def logout():

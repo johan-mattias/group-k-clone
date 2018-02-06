@@ -15,7 +15,7 @@ class LoginManager():
     def __init__(self):
         pass
 
-    def encode_auth_token(self, user_id, days=0, minutes=0, seconds=0):
+    def encode_auth_token(self, user_id, days=7, minutes=0, seconds=0):
         """
         Generates auth token
         """
@@ -26,7 +26,6 @@ class LoginManager():
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }
-            print('payload', payload)
             return jwt.encode(
                 payload=payload,
                 key=SECRET_KEY,
@@ -51,8 +50,8 @@ class LoginManager():
             return 'Invalid token. Please log in again.'
 
 if __name__ == '__main__':
-    login = Login()
-    user_id = 1
+    login = LoginManager()
+    user_id = 999
     token = login.encode_auth_token(user_id)
     print('token', token)
     payload_sub = login.decode_auth_token(token)
