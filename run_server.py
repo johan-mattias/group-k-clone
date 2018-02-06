@@ -1,13 +1,13 @@
-from network import utils, TcpHandler, UdpHandler
+from network import utils, tcp_handler, udp_handler
 import math, time, threading
 
 class NetworkHandler(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.main_tcp_handler = TcpHandler.TcpHandler()#Should be port 12000
+        self.main_tcp_handler = tcp_handler.TcpHandler()#Should be port 12000
         print(self.main_tcp_handler.port)
-        self.udp_handler_listener = UdpHandler.UdpHandler()
-        self.udp_handler_sender = UdpHandler.UdpHandler()
+        self.udp_handler_listener = udp_handler.UdpHandler()
+        self.udp_handler_sender = udp_handler.UdpHandler()
 
     def run(self):
         self.udp_thread = UdpThread(self.udp_handler_listener)
@@ -24,7 +24,7 @@ class MainTcpThread(threading.Thread):
     def run(self):
         while True:
             remote_address = self.tcp_handler.accept()
-            new_tcp_handler = TcpHandler.TcpHandler()
+            new_tcp_handler = tcp_handler.TcpHandler()
             new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0])
             new_port = new_tcp_thread.tcp_handler.port
             new_tcp_thread.start()
@@ -83,7 +83,12 @@ class UdpThread(threading.Thread):
                         self.ip_without_port.remove(ip)
                         return
 
-network = NetworkHandler()
-network.start()
 
+def main():
+    network = NetworkHandler()
+    network.start()
+
+
+if __name__ == '__main__':
+    main()
 

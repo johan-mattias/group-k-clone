@@ -1,4 +1,4 @@
-from network import utils, TcpHandler, UdpHandler
+from network import utils, tcp_handler, udp_handler
 #from snider_glider import Game, ClientGUI, Player
 import threading, queue
 
@@ -7,9 +7,9 @@ SERVER_TCP_ADDRESS = ("antoncarlsson.se", 12000)
 class NetworkHandler(threading.Thread):
     def __init__(self, data_queue):
         threading.Thread.__init__(self)
-        self.tcp_handler = TcpHandler.TcpHandler(SERVER_TCP_ADDRESS)
+        self.tcp_handler = tcp_handler.TcpHandler(SERVER_TCP_ADDRESS)
         print("tcp", self.tcp_handler.port)
-        self.udp_handler = UdpHandler.UdpHandler()
+        self.udp_handler = udp_handler.UdpHandler()
         print("udp", self.udp_handler.port)        
         self.data_queue = data_queue
 
