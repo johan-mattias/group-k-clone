@@ -33,7 +33,7 @@ def login():
 
     username = request.form.get('username')
     password = request.form.get('password')
-    token = request.headers.get('authorization')
+    token = request.headers.get('Authorization')
 
     if token is not None:
         sub = lm.decode_auth_token(token)
