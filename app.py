@@ -15,14 +15,18 @@ def register():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    # TODO: check that username doesn't already exist
+    if username is None:
+        return "Please enter a valid username", 400
+    if password is None:
+        return "Please enter a password", 400
+    if um.get_by_username(username):
+        return "Username already exists, please choose another one", 400
 
     um.create_user(username, password)
     new_user = um.get_by_username(username)
-
     token = lm.encode_auth_token(new_user.id)
 
-    return token
+    return token, 200
 
 @app.route("/auth/login", methods=["POST"])
 def login():
