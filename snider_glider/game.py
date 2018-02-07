@@ -1,16 +1,16 @@
 import pyglet as py
-import threading
+import threading, time
 from snider_glider.player import Player, player_from_player_to
 from snider_glider.client_gui import ClientGUI
 
 
 class ClientGame(threading.Thread):
 
-    def __init__(self,thread_id, thread_name, data_queue, size=(600, 400),tic_rate=1/60, demo_player=False):
+    def __init__(self,thread_id, thread_name, comm, size=(600, 400),tic_rate=1/60, demo_player=False):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.thread_name = thread_name
-        self.data_queue = data_queue
+        self.comm = comm
 
         self.STDMOVEMENTSPEED = (2, 0)
         self.WIDTH, self.HEIGHT = size
@@ -22,7 +22,6 @@ class ClientGame(threading.Thread):
         self.players = dict()
 
         self.WINDOW = ClientGUI(size, self)
-        py.gl.glClearColor(1, 1, 1, 1)
         self.keys = py.window.key.KeyStateHandler()
         self.WINDOW.push_handlers(self.keys)
 
@@ -31,7 +30,10 @@ class ClientGame(threading.Thread):
             demo_player_sprite = py.sprite.Sprite(demo_player_image)
             self.scale_sprite(demo_player_sprite)
             self.demo_player = Player(demo_player_sprite, 'McFace', (py.window.key.UP, py.window.key.RIGHT, py.window.key.DOWN, py.window.key.LEFT))
+            self.players[self.demo_player.player_id] = self.demo_player
             self.WINDOW.add_entity(self.demo_player)
+
+        py.clock.schedule_interval(self.game_loop, self.TIC_RATE)
 
     def run_game(self):
         py.app.run()
@@ -44,16 +46,28 @@ class ClientGame(threading.Thread):
         sprite.scale_y = y_scale
 
     def game_loop(self, dt):
-        self.demo_player.set_position(self.data_queue.get())
-        self.demo_player.move(self.keys)
+        #print("Running game_loop")
+        self.update_player_positions()
+        self.handle_player_inputs()
 
     def run(self):
-        py.clock.schedule_interval(self.game_loop, self.TIC_RATE)
-        self.run_game()
+        while 1:
+            self.game_loop(1)
+            time.sleep(self.TIC_RATE)
 
-    #Colors
-    BLACK = 0, 0, 0
-    WHITE = 255, 255, 255
+    def update_player_positions(self):
+        for player_to in self.comm.player_updates:
+            self.players[player_to.player_id].set_position(player_to.get_position())
+
+    def handle_player_inputs(self):
+        try:
+            self.demo_player.move(self.keys)
+        except KeyError:
+            print("No demo-player ya n00b")
+        self.comm.set_local_player(self.demo_player.to_transfer_object())
+
+    def get_gui(self):
+        return py
 
 
 class ServerGame(threading.Thread):

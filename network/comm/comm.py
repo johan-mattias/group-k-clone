@@ -1,4 +1,4 @@
-import snider_glider.player.PlayerTO
+from snider_glider.player import PlayerTO
 import queue
 
 
@@ -9,12 +9,14 @@ class ClientComm:
 
         # Network->Game
         # UDP
-        self.player_updates = None
+        self.player_updates = list()
 
         # TCP
         self.modification_queue = queue.Queue()
         self.tick_rate = 1 / 30
 
+    def set_local_player(self, player_to):
+        self.local_player = player_to
 
 class ServerComm:
     def __init__(self):
