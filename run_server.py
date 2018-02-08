@@ -17,7 +17,7 @@ class NetworkHandler(threading.Thread):
 
         self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.address_list)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms, self.address_list)
-        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_sender, self.comms)
+        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comms)
 
         print("TCP on port:", self.main_tcp_handler.port) #debug
         print("UDP listener on port:", self.udp_handler_listener.port) #debug
@@ -47,7 +47,7 @@ class MainTcpThread(threading.Thread):
             #TODO check auth
             self.udp_thread.add_accepted_ip((remote_address[0], None))
             self.tcp_handler.send(DataFormat.PORT, new_port)
-            #TODO close connection
+            self.tcp_handler.close_connection()
 
 
 class TcpThread(threading.Thread):
@@ -101,8 +101,7 @@ class UdpThreadSender(threading.Thread):
             #Sleep
             time.sleep(1/60)
                 
-    def add_accepted_ip(self, address):
-        self.address_list.append(address)
+
 
 
 class UdpThreadListener(threading.Thread):
@@ -116,18 +115,24 @@ class UdpThreadListener(threading.Thread):
         while True:
             #receive
             address, data = self.udp_handler.receive()
-            print(data)
 
             #TEMPORARY
-            for addr in self.address_list:
-                if address[0] == addr[0]:
-                    addr = address
-                    break
+            #todo make nicer
+            if data['clientTime'] == 0:
+                print(data)
+                for addr in self.address_list:
+                    if address[0] == addr[0]:                    
+                        addr = address
+                        break    
             #TEMPORARY
+
+            print(data)
             
             #sleep
             time.sleep(1/60)
 
+    def add_accepted_ip(self, address):
+        self.address_list.append(address)            
 
 def main():
 

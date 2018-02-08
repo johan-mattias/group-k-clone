@@ -84,7 +84,7 @@ class ServerGame(threading.Thread):
             Action.REMOVE: self.remove_player
         }
 
-        threading.Thread__init__(self)
+        threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.comm = comm
         self.players ={}
