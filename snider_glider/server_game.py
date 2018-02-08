@@ -1,6 +1,6 @@
 import threading
 
-from snider_glider.game import Action
+from snider_glider.utils import Action
 from snider_glider.player import player_from_player_to
 
 

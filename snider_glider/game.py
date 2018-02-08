@@ -2,13 +2,6 @@ import pyglet as py
 import threading, time
 from snider_glider.player import Player
 from snider_glider.client_gui import ClientGUI
-from enum import Enum
-
-
-class Action(Enum):
-    ADD = 0
-    REMOVE = 1
-    MODIFY = 2
 
 
 class ClientGame(threading.Thread):

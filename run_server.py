@@ -22,7 +22,7 @@ class NetworkHandler(threading.Thread):
 
         print("TCP on port:", self.main_tcp_handler.port) #debug
         print("UDP listener on port:", self.udp_handler_listener.port) #debug
-        print("UDP sender on port:", self.udp_handler_sender.port) #debug        
+        print("UDP sender on port:", self.udp_handler_sender.port) #debug
 
     def run(self):
         #start threads

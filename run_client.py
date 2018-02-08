@@ -1,6 +1,7 @@
 from network import utils, udp_handler, comm
 from network.tcp_handler import *
-from snider_glider.game import ClientGame, Action
+from snider_glider.game import ClientGame
+from snider_glider.utils import Action
 import threading, queue, time
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
