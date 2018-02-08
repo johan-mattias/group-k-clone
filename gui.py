@@ -222,12 +222,12 @@ class Window(pyglet.window.Window):
         self.alive = 1
         self.refreshrate = refreshrate
 
-        # self.currentScreen = MenuScreen(header_text='GAME MENU',
-        #                                 buttons=[{ 'text': 'LOG IN'}, { 'text': 'REGISTER'}, { 'text': 'QUIT'}])
+        self.currentScreen = MenuScreen(header_text='GAME MENU',
+                                        buttons=[{ 'text': 'LOG IN'}, { 'text': 'REGISTER'}, { 'text': 'QUIT'}])
 
-        self.currentScreen = LoginRegisterScreen(height=235, height_offset=60, header_text='LOG IN',
-                                        inputs=[{'text': 'ENTER USERNAME'}, {'text': 'ENTER PASSWORD'}],
-                                        buttons=[{'text': 'BACK'}, {'text': 'LOG IN'}])
+        # self.currentScreen = LoginRegisterScreen(height=235, height_offset=60, header_text='LOG IN',
+        #                                 inputs=[{'text': 'ENTER USERNAME'}, {'text': 'ENTER PASSWORD'}],
+        #                                 buttons=[{'text': 'BACK'}, {'text': 'LOG IN'}])
 
         # self.currentScreen = LoginRegisterScreen(height=300, height_offset=90, header_text='REGISTER USER',
         #                                 inputs=[{'text': 'ENTER USERNAME'}, {'text': 'ENTER PASSWORD'}, {'text': 'RE-ENTER PASSWORD'}],
