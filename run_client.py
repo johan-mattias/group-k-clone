@@ -1,7 +1,7 @@
 from network import utils, udp_handler, comm
 from network.tcp_handler import *
 from snider_glider.game import ClientGame, Action
-import threading, queue
+import threading, queue, time
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
 
@@ -27,31 +27,6 @@ class NetworkHandler(threading.Thread):
         self.udp_thread_sender.start()
 
 
-        '''
-        print("initializing udp receiving")
-        udp_port = self.udp_handler.port
-        self.tcp_handler.connect()
-        data = self.tcp_handler.receive()
-        print("NEW PORT:", data[1])
-        while True:
-            #send
-            print("send")
-            self.udp_handler.send(("antoncarlsson.se", 12000), (utils.unixtime(), 1, 1))
-            #receive
-            print("recv")
-            try:
-                self.udp_handler.socket.settimeout(1)
-                address, data = self.udp_handler.receive()
-                x_pos = data['xv']
-                y_pos = data['yv']
-                #self.data_queue.put((x_pos, y_pos))
-                print("Rec     ====    X: " + str(x_pos) + " - Y:" + str(y_pos))
-            except:
-                print("didnt get")
-            print("X: " + str(self.communication_object.local_player.x) + " - Y: " + str(self.communication_object.local_player.y))
-            '''
-
-
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, server_address, comms):
         threading.Thread.__init__(self)
@@ -64,7 +39,8 @@ class TcpThread(threading.Thread):
         data = self.tcp_handler.receive()
         new_port = data[1]
         self.server_address = (self.server_address[0], new_port)
-        #TODO close
+        self.tcp_handler.close()
+        self.tcp_handler = TcpHandler()
         self.tcp_handler.connect(self.server_address)
         while self.comms.local_player is None:
             pass
@@ -91,50 +67,40 @@ class TcpThread(threading.Thread):
 
 
 class UdpThreadSender(threading.Thread):
-    def __init__(self, udp_handler, comms, address_list):
+    def __init__(self, udp_handler, comms):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
         self.comms = comms
-        self.address_list = address_list
 
     def run(self):
-        angle = 0
         while True:
-            #calculate position
-            x, y = math.cos(angle)*50 + 200, math.sin(angle)*50 + 200
-            angle += math.pi/30
-
             #send
-            for address in self.address_list:
-                if(address[1] != None):
-                    self.udp_handler.send((address), (utils.unixtime(), int(x), int(y)))
-                    
+            self.udp_handler.send(("antoncarlsson.se", 12000), (utils.unixtime(), 1, 1))  
             #Sleep
             time.sleep(1/60)
-                
-    def add_accepted_ip(self, address):
-        self.address_list.append(address)
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comms, address_list):
+    def __init__(self, udp_handler, comms):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
         self.comms = comms
-        self.address_list = address_list
+        self.have_received_server_data = False
 
     def run(self):
         while True:
-            #receive
+            if not self.have_received_server_data:
+                self.udp_handler.send(("antoncarlsson.se", 12000), (0,0,0))
+                try:
+                    self.udp_handler.socket.settimeout(0.1)
+                    self.udp_handler.receive()
+                    self.have_received_server_data = True
+                except:
+                    print("havent gotten anything")
             address, data = self.udp_handler.receive()
-            print(data)
-
-            #TEMPORARY
-            for addr in self.address_list:
-                if address[0] == addr[0]:
-                    addr = address
-                    break
-            #TEMPORARY
+            x_pos = data['xv']
+            y_pos = data['yv']
+            print(" X:", x_pos, " - Y:", y_pos)
             
             #sleep
             time.sleep(1/60)        

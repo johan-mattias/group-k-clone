@@ -6,6 +6,7 @@ class DataFormat(Enum):
     TOKEN = 0
     PLAYER_UDPATE = 1
     PORT = 2
+    PORTS = 3
 
 
 class TcpHandler:
@@ -49,5 +50,12 @@ class TcpHandler:
         else:
             self.connection.send(sendData)
 
+    def close_connection(self):
+        if self.connection != None:
+            self.connection.close()
+            
+    def shutdown(self):
+        self.socket.shutdown(SHUT_RDWR)
+        
     def close(self):
         self.socket.close()

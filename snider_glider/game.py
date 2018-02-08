@@ -75,5 +75,3 @@ class ClientGame(threading.Thread):
 
     def get_gui(self):
         return py
-
-
