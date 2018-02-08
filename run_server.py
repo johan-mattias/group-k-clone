@@ -1,4 +1,5 @@
-from network import utils, tcp_handler, udp_handler, comm
+from network import utils, udp_handler, comm
+from network.tcp_handler import *
 import math, time, threading
 
 class NetworkHandler(threading.Thread):
@@ -7,7 +8,7 @@ class NetworkHandler(threading.Thread):
         #create commincation between thread object
         self.comm = comm 
         #create handlers (sockets)
-        self.main_tcp_handler = tcp_handler.TcpHandler() #Should be port 12000
+        self.main_tcp_handler = TcpHandler() #Should be port 12000
         self.udp_handler_listener = udp_handler.UdpHandler()
         self.udp_handler_sender = udp_handler.UdpHandler()
 
@@ -20,52 +21,51 @@ class NetworkHandler(threading.Thread):
         address_list = list() #The list udp uses to send and receive data.
         self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comm, address_list)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comm, address_list)        
-        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comm)
+        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_sender, self.comm)
         #start threads
         self.main_tcp_thread.start()
         self.udp_thread_listener.start()
         self.udp_thread_sender.start()        
         
 class MainTcpThread(threading.Thread):
-    def __init__(self, tcp_handler, udp_thread, comm):
+    def __init__(self, tcp_handler, udp_thread, comms):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.udp_thread = udp_thread
-        self.comm = comm
+        self.comm = comms
 
     def run(self):
         while True:
             remote_address = self.tcp_handler.accept()
-            new_tcp_handler = tcp_handler.TcpHandler()
+            new_tcp_handler = TcpHandler()
             new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0])
             new_port = new_tcp_thread.tcp_handler.port
             new_tcp_thread.start()
-            #TODO
-            #check auth
+            #TODO check auth
             self.udp_thread.add_accepted_ip((remote_address[0], None))
-            #Send new_port to client
-            #close connection
-            #accept new connection
+            self.tcp_handler.send(DataFormat.PORT, new_port)
+            #TODO close connection
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, remote_ip, comm):
+    def __init__(self, tcp_handler, remote_ip, comms):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.remote_ip = remote_ip
-        self.comm = comm
+        self.comms = comms
 
     def run(self):
         remote_address = self.tcp_handler.accept()
         #TODO if(remote_address[0] != remote_ip): handle
         print("Connection from", remote_address[0], "accepted")
         print("Expected from", self.remote_ip)
+        #TODO ta emot skit
         
 
 class UdpThreadSender(threading.Thread):
-    def __init__(self, udp_handler, comm, address_list):
+    def __init__(self, udp_handler, comms, address_list):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comm = comm
+        self.comms = comms
         self.address_list = address_list
 
     def run(self):
@@ -87,10 +87,10 @@ class UdpThreadSender(threading.Thread):
         self.address_list.append(address)
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comm, address_list):
+    def __init__(self, udp_handler, comms, address_list):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comm = comm
+        self.comms = comms
         self.address_list = address_list
 
     def run(self):
@@ -113,7 +113,7 @@ def main():
     #Todo: Create comm object and give it to both network threads and GameThread when created.
     comms = comm.ServerComm()
     
-    network = NetworkHandler(comm)
+    network = NetworkHandler(comms)
     network.start()
 
 

@@ -1,5 +1,11 @@
 from socket import *
 import network.utils as utils
+from enum import Enum
+
+class DataFormat(Enum):
+    TOKEN = 0
+    PLAYER_UDPATE = 1
+    PORT = 2
 
 class TcpHandler:
 
@@ -32,11 +38,18 @@ class TcpHandler:
             data = self.socket.recv(1024)
         else:
             data = self.connection.recv(1024)
+
+        data = pickle.loads(data)
         
         return data
 
-    def send(self, data):
-        self.socket.send(data)
+    def send(self, data_format, data):
+        sendData = utils.serialize_obj((data_format, data))
+        
+        if (self.connection == None):
+            self.socket.send(sendData)
+        else:
+            self.connection.send(sendData)
 
     def close(self):
         self.socket.close()

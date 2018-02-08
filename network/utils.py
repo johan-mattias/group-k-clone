@@ -1,4 +1,5 @@
 import time, socket
+import pickle
 
 def unixtime():
     return int(time.time() * 1000)
@@ -32,4 +33,6 @@ def get_free_tcp_port():
 
     sock.close()
     return port            
-    
+
+def serialize_obj(obj):
+    return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)

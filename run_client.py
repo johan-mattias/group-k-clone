@@ -21,6 +21,8 @@ class NetworkHandler(threading.Thread):
         print("initializing udp receiving")
         udp_port = self.udp_handler.port
         self.tcp_handler.connect()
+        data = self.tcp_handler.receive()
+        print("NEW PORT:", data[1])
         while True:
             #send
             print("send")
