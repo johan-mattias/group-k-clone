@@ -20,7 +20,7 @@ class NetworkHandler(threading.Thread):
         address_list = list() #The list udp uses to send and receive data.
         self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comm, address_list)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comm, address_list)        
-        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread, self.comm)
+        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comm)
         #start threads
         self.main_tcp_thread.start()
         self.udp_thread_listener.start()
@@ -111,7 +111,7 @@ class UdpThreadListener(threading.Thread):
 
 def main():
     #Todo: Create comm object and give it to both network threads and GameThread when created.
-    comm = comm.ServerComm()
+    comms = comm.ServerComm()
     
     network = NetworkHandler(comm)
     network.start()
