@@ -6,6 +6,10 @@ app = Flask(__name__)
 um = UserManager()
 lm = LoginManager()
 
+ENTER_USERNAME = "Please enter a valid username"
+ENTER_PASSWORD = "Please enter a password"
+ENTER_USERNAME_PASSWORD_VALID = "Please enter a valid username and password"
+
 @app.route("/")
 def home():
     return "Home page"
@@ -16,11 +20,11 @@ def register():
     password = request.form.get('password')
 
     if username is None:
-        return "Please enter a valid username", 400
+        return ENTER_USERNAME, 400
     if password is None:
-        return "Please enter a password", 400
+        return ENTER_PASSWORD, 400
     if um.get_by_username(username) is not None:
-        return "Username already exists, please choose another one", 400
+        return ENTER_USERNAME_PASSWORD_VALID, 400
 
     um.create_user(username, password)
     new_user = um.get_by_username(username)
@@ -45,16 +49,16 @@ def login():
         user = um.get_by_username(username)
 
         if user is None:
-            return "No such user exists", 401
+            return ENTER_USERNAME_PASSWORD_VALID, 401
 
         if password is None:
-            return "Please enter a password", 401
+            return ENTER_USERNAME_PASSWORD_VALID, 401
 
         if user.is_correct_password(password):
             return lm.encode_auth_token(user_id = user.id), 200
         else:
-            return "Wrong password", 401
-    return "Please enter a valid username and password", 401
+            return ENTER_USERNAME_PASSWORD_VALID, 401
+    return ENTER_USERNAME_PASSWORD_VALID, 401
 
 @app.route("/auth/logout")
 def logout():
