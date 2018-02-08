@@ -1,6 +1,6 @@
 from network import utils, tcp_handler, udp_handler, comm
 from snider_glider.player import PlayerTO
-#from snider_glider.game import ClientGame
+from snider_glider.game import ClientGame
 
 import threading, queue
 
@@ -44,15 +44,15 @@ def main():
     communication_object = comm.ClientComm()
 
     network_handler = NetworkHandler(communication_object)
-    #game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
-    #gui = game_thread.get_gui()
+    game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
+    gui = game_thread.get_gui()
 
 
-    #game_thread.start()
+    game_thread.start()
     network_handler.start()
 
-    #gui.gl.glClearColor(1, 1, 1, 1)
-    #gui.app.run()
+    gui.gl.glClearColor(1, 1, 1, 1)
+    gui.app.run()
 
 
 if __name__ == '__main__':

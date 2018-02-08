@@ -39,7 +39,7 @@ class TcpHandler:
         else:
             data = self.connection.recv(1024)
         
-        return utils.deserialze_obj(data)
+        return utils.deserialize_obj(data)
 
     def send(self, data_format, data):
         sendData = utils.serialize_obj((data_format, data))

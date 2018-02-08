@@ -32,7 +32,7 @@ class MainTcpThread(threading.Thread):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.udp_thread = udp_thread
-        self.comm = comms
+        self.comms = comms
 
     def run(self):
         while True:
