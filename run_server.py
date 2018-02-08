@@ -138,9 +138,9 @@ class UdpThreadListener(threading.Thread):
             #todo make nicer
             if data['clientTime'] == 0:
                 print(data)
-                for addr in self.address_list:
-                    if address[0] == addr[0]:                    
-                        addr = address
+                for i in range(len(self.address_list)):
+                    if self.address_list[i][0] == address[0]:             
+                        self.address_list[i] = address
                         break    
             #TEMPORARY
 

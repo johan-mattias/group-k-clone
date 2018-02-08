@@ -98,10 +98,11 @@ class UdpThreadListener(threading.Thread):
                     self.have_received_server_data = True
                 except:
                     print("havent gotten anything")
-            address, data = self.udp_handler.receive()
-            x_pos = data['xv']
-            y_pos = data['yv']
-            print(" X:", x_pos, " - Y:", y_pos)
+            else:
+                address, data = self.udp_handler.receive()
+                x_pos = data['xv']
+                y_pos = data['yv']
+                print(" X:", x_pos, " - Y:", y_pos)
             
             #sleep
             time.sleep(1/60)        
