@@ -141,8 +141,10 @@ class UdpThreadListener(threading.Thread):
                 for i in range(len(self.address_list)):
                     if self.address_list[i][0] == address[0]:             
                         self.address_list[i] = address
-                        break    
+                        break
+                print(self.address_list)
             #TEMPORARY
+            
 
             print(data)
             
