@@ -38,10 +38,8 @@ class TcpHandler:
             data = self.socket.recv(1024)
         else:
             data = self.connection.recv(1024)
-
-        data = pickle.loads(data)
         
-        return data
+        return utils.deserialze_obj(data)
 
     def send(self, data_format, data):
         sendData = utils.serialize_obj((data_format, data))

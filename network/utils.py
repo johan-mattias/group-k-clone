@@ -36,3 +36,6 @@ def get_free_tcp_port():
 
 def serialize_obj(obj):
     return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
+
+def deserialize_obj(obj):
+    return pickle.load(obj)
