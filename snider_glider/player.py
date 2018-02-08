@@ -40,7 +40,6 @@ class Player:
 
     def move(self, keys):
         self.generateMovementSpeed(keys)
-        self.x, self.y = tuple(map(sum, zip((self.x, self.y), self.movementSpeed)))
 
     def set_position(self, pos):
         self.x, self.y = pos

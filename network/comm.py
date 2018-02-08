@@ -18,6 +18,7 @@ class ClientComm:
     def set_local_player(self, player_to):
         self.local_player = player_to
 
+
 class ServerComm:
     def __init__(self):
         # Game->Network
@@ -28,5 +29,5 @@ class ServerComm:
         self.player_updates = queue.Queue()# (PlayerTO, client_time)
 
         # TCP
-        self.modification_queue = queue.Queue()# (PlayerTO, action)
+        self.modification_queue = queue.Queue()# (action, PlayerTO)
         self.tick_rate = 1/30

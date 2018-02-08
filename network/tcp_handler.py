@@ -7,6 +7,7 @@ class DataFormat(Enum):
     PLAYER_UDPATE = 1
     PORT = 2
 
+
 class TcpHandler:
 
     def __init__(self, remote_address=None):
@@ -17,7 +18,6 @@ class TcpHandler:
         self.port = utils.get_free_tcp_port()
         print("free port", self.port)
         self.socket.bind(('', self.port))
-        
 
     def accept(self):
         self.socket.listen(1)
@@ -34,7 +34,7 @@ class TcpHandler:
         print("Connected to", self.remote_address)
         
     def receive(self):
-        if (self.connection == None):
+        if self.connection is None:
             data = self.socket.recv(1024)
         else:
             data = self.connection.recv(1024)
@@ -44,11 +44,10 @@ class TcpHandler:
     def send(self, data_format, data):
         sendData = utils.serialize_obj((data_format, data))
         
-        if (self.connection == None):
+        if self.connection is None:
             self.socket.send(sendData)
         else:
             self.connection.send(sendData)
 
     def close(self):
         self.socket.close()
-        

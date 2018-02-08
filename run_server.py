@@ -1,7 +1,8 @@
-from snider_glider.game import ServerGame
+from snider_glider.server_game import ServerGame
 from network import utils, udp_handler, comm
 from network.tcp_handler import *
 import math, time, threading
+
 
 class NetworkHandler(threading.Thread):
     def __init__(self, comms):
@@ -52,6 +53,11 @@ class MainTcpThread(threading.Thread):
 
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, remote_ip, comms):
+        self.data_format_mapping = {
+            DataFormat.PLAYER_UDPATE: self.handle_player_update(),
+            DataFormat.TOKEN: self.handle_token(),
+            DataFormat.PORT: self.handle_port()
+        }
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.remote_ip = remote_ip
@@ -68,16 +74,27 @@ class TcpThread(threading.Thread):
         self.handle_recv()
         
     def handle_send(self):
-        #TODO check comms queue        
+        #TODO check comms queue
         pass
 
     def handle_recv(self):
         self.tcp_handler.socket.settimeout(0.5)
         try:
-            data = self.tcp_handler.receive()
+            data_format, data = self.tcp_handler.receive()
+            self.data_format_mapping[data_format](data)
         except socket.timeout:
             print("Socket timed out")
-        
+
+    def handle_player_update(self, data):
+        action, player_to = data
+        self.comms.modification_queue.put((action, player_to))
+
+    def handle_token(self, data):
+        pass
+
+    def handle_port(self, data):
+        pass
+
 
 class UdpThreadSender(threading.Thread):
     def __init__(self, udp_handler, comms, address_list):

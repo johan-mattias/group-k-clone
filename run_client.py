@@ -1,6 +1,6 @@
 from network import utils, udp_handler, comm
 from network.tcp_handler import *
-from snider_glider.game import ClientGame
+from snider_glider.game import ClientGame, Action
 import threading, queue
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
@@ -51,6 +51,7 @@ class NetworkHandler(threading.Thread):
             print("X: " + str(self.communication_object.local_player.x) + " - Y: " + str(self.communication_object.local_player.y))
             '''
 
+
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, server_address, comms):
         threading.Thread.__init__(self)
@@ -65,6 +66,9 @@ class TcpThread(threading.Thread):
         self.server_address = (self.server_address[0], new_port)
         #TODO close
         self.tcp_handler.connect(self.server_address)
+        while self.comms.local_player is None:
+            pass
+        self.tcp_handler.send(DataFormat.PLAYER_UDPATE, (Action.ADD, self.comms.local_player))
         while True:
             self.tcp_loop()
             
@@ -74,9 +78,9 @@ class TcpThread(threading.Thread):
         
     def handle_send(self):
         #TODO check comms queue
-        #while not self.comms.modification_queue.empty():
+        while not self.comms.modification_queue.empty():
             player_to, action = self.comms.modification_queue.get()
-        #    pass
+            self.tcp_handler.send((DataFormat.PLAYER_UDPATE, (action, player_to)))
 
     def handle_recv(self):
         self.tcp_handler.socket.settimeout(0.5)
@@ -84,6 +88,7 @@ class TcpThread(threading.Thread):
             data = self.tcp_handler.receive()
         except socket.timeout:
             print("Socket timed out, nothing to receive")
+
 
 class UdpThreadSender(threading.Thread):
     def __init__(self, udp_handler, comms, address_list):
