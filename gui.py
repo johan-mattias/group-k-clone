@@ -75,7 +75,7 @@ class Button(Spr):
                                         font_size=font_size,
                                         font_name=font_name,
                                         x=x,
-                                        y=y+height/2-20,
+                                        y=y+height/2-25,
                                         multiline=False,
                                         width=width,
                                         height=height,
@@ -104,16 +104,16 @@ class MenuScreen(Spr):
                  color='#FFFFFF'):
         super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
 
-        self.screen_text = pyglet.text.Label('GAME IN DISGUISE',
+        self.screen_text = pyglet.text.Label('GAME MENU',
                                              font_size=font_size,
                                              font_name=font_name,
-                                             x=x,
-                                             y=y+height/2+20,
+                                             x=x-152,
+                                             y=y+height/2+1,
                                              multiline=False,
                                              width=width,
                                              height=height,
                                              color=convert_hashColor_to_RGBA(color),
-                                             anchor_x='center')
+                                             anchor_x='left')
 
         BUTTON_OFFSET = 60
         self.buttons = [
