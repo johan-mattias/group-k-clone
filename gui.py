@@ -6,6 +6,10 @@ __WIDTH__ = 800
 __HEIGHT__ = 500
 __BUTTON_HEIGHT__ = 40
 __BUTTON_WIDTH__ = 150
+__BUTTON_WIDTH_SMALL__ = 100
+__INPUT_HEIGHT__ = 40
+__INPUT_WIDTH__ = 250
+__FONTS__ = ('Roboto', 'Calibri', 'Arial')
 
 
 def convert_hashColor_to_RGBA(color):
@@ -52,7 +56,7 @@ class IntroScreen(Spr):
     def __init__(self, texture=None, width=300, height = 150, x = 10, y = 10, color='#000000'):
         super(IntroScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=color)
 
-        self.intro_text = pyglet.text.Label('Running game', font_size=8, font_name=('Verdana', 'Calibri', 'Arial'), x=x, y=y, multiline=False, width=width, height=height, color=(100, 100, 100, 255), anchor_x='center')
+        self.intro_text = pyglet.text.Label('Running game', font_size=8, font_name=__FONTS__, x=x, y=y, multiline=False, width=width, height=height, color=(100, 100, 100, 255), anchor_x='center')
         self.has_been_visible_since = time()
 
     def _draw(self):  # <-- Important, this is the function that is called from the main window.render() function. The built-in rendering function of pyglet is called .draw() so we create a manual one that's called _draw() that in turn does stuff + calls draw(). This is just so we can add on to the functionality of Pyglet.
@@ -62,17 +66,47 @@ class IntroScreen(Spr):
             self.intro_text.text = 'foo studios'
 
 
+class InputField(Spr):
+    def __init__(self,
+                 text='INPUT',
+                 font_size=8,
+                 font_name=__FONTS__,
+                 texture=None,
+                 width=__INPUT_WIDTH__,
+                 height = __INPUT_HEIGHT__,
+                 x = 300,
+                 y = __HEIGHT__//2,
+                 bg_color='#C4C4C4',
+                 color='#000000'):
+        super(InputField, self).__init__(texture, width=int(width), height=int(height), x=x, y=y, color=bg_color)
+
+        self.screen_text = pyglet.text.Label(text,
+                                             font_size=font_size,
+                                             font_name=font_name,
+                                             x=176,
+                                             y=y+21,
+                                             multiline=False,
+                                             width=width,
+                                             height=height,
+                                             color=convert_hashColor_to_RGBA(color),
+                                             anchor_x='left')
+
+    def _draw(self):
+        self.draw()
+        self.screen_text.draw()
+
+
 class Button(Spr):
     def __init__(self,
                  func,
                  text='BUTTON',
                  font_size=10,
-                 font_name=('Roboto', 'Calibri', 'Arial'),
+                 font_name=__FONTS__,
                  texture=None,
                  width=__BUTTON_WIDTH__,
                  height=__BUTTON_HEIGHT__,
                  x=300,
-                 y=__HEIGHT__ // 2,
+                 y=__HEIGHT__//2,
                  bg_color='#C4C4C4',
                  color='#000000'):
         super(Button, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
@@ -81,7 +115,7 @@ class Button(Spr):
                                              font_size=font_size,
                                              font_name=font_name,
                                              x=x,
-                                             y=y+height/2-20,
+                                             y=y+height//2-25,
                                              multiline=False,
                                              width=width,
                                              height=height,
@@ -94,42 +128,88 @@ class Button(Spr):
         self.screen_text.draw()
 
 
-# Then we have a MenuScreen (with a red background)
-# Note that the RED color comes not from this class because the default is black #000000
-# the color is set when calling/instanciating this class further down.
-#
-# But all this does, is show a "menu" (aka a text saying it's the menu..)
-class MenuScreen(Spr):
+class LoginRegisterScreen(Spr):
     def __init__(self,
                  font_size=20,
-                 font_name=('Roboto', 'Calibri', 'Arial'),
+                 font_name=__FONTS__,
                  texture=None,
                  width=300,
-                 height = 235,
-                 x = 300,
-                 y = __HEIGHT__/2,
+                 width_offset=225,
+                 height=235,
+                 height_offset=60,
+                 x=300,
+                 y=__HEIGHT__//2,
                  bg_color='#FFFFFF',
-                 color='#FFFFFF'):
-        super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
+                 color='#FFFFFF',
+                 header_text='HEADER TEXT',
+                 inputs=[],
+                 buttons=[]):
+        super(LoginRegisterScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
 
-        self.screen_text = pyglet.text.Label('GAME IN DISGUISE',
+        self.screen_text = pyglet.text.Label(header_text,
                                              font_size=font_size,
                                              font_name=font_name,
-                                             x=x,
-                                             y=y+height/2+20,
+                                             x=x-152,
+                                             y=y+height//2+1,
                                              multiline=False,
                                              width=width,
                                              height=height,
                                              color=convert_hashColor_to_RGBA(color),
-                                             anchor_x='center')
-        self.client = Client("antoncarlsson.se:5000")
+                                             anchor_x='left')
 
-        BUTTON_OFFSET = 60
-        self.buttons = [
-            Button(func=lambda: print("log in"), text='LOG IN', y=__HEIGHT__ // 2 + BUTTON_OFFSET),
-            Button(func=lambda: print("register"), text='REGISTER', y=(__HEIGHT__ // 2 + BUTTON_OFFSET - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__ // 2)),
-            Button(func=self.quit, text='QUIT', y=(__HEIGHT__ // 2 + BUTTON_OFFSET - (__BUTTON_HEIGHT__*2) - __BUTTON_HEIGHT__))
-        ]
+        self.height_offset = height_offset
+        self.inputs = []
+        for input_field in inputs:
+            self.inputs.append(InputField(text=input_field["text"], y=__HEIGHT__//2 + self.height_offset))
+            self.height_offset += - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__//2
+
+        self.width_offset = width_offset
+        self.buttons = []
+        for button in buttons:
+            self.buttons.append(Button(text=button["text"], width=__BUTTON_WIDTH_SMALL__, x = self.width_offset, y=__HEIGHT__//2 + self.height_offset))
+            self.width_offset += __BUTTON_WIDTH__
+
+    def _draw(self):
+        self.draw()
+        self.screen_text.draw()
+        for input_field in self.inputs:
+            input_field._draw()
+        for button in self.buttons:
+            button._draw()
+
+
+class MenuScreen(Spr):
+    def __init__(self,
+                 font_size=20,
+                 font_name=__FONTS__,
+                 texture=None,
+                 width=300,
+                 height = 235,
+                 x=300,
+                 y=__HEIGHT__//2,
+                 bg_color='#FFFFFF',
+                 color='#FFFFFF',
+                 header_text='HEADER TEXT',
+                 buttons=[]):
+        super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
+
+        self.screen_text = pyglet.text.Label(header_text,
+                                             font_size=font_size,
+                                             font_name=font_name,
+                                             x=x-152,
+                                             y=y+height/2+1,
+                                             multiline=False,
+                                             width=width,
+                                             height=height,
+                                             color=convert_hashColor_to_RGBA(color),
+                                             anchor_x='left')
+
+        button__offset = 60
+
+        self.buttons = []
+        for button in buttons:
+            self.buttons.append(Button(func=button["func"], text=button["text"], y=__HEIGHT__//2 + button__offset))
+            button__offset += - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__//2
 
     def _draw(self):
         self.draw()
@@ -157,7 +237,18 @@ class Window(pyglet.window.Window):
         self.alive = 1
         self.refresh_rate = refresh_rate
 
-        self.currentScreen = MenuScreen()  # <-- Important
+        self.currentScreen = MenuScreen(header_text='GAME MENU',
+                                        buttons=[{'text': 'LOG IN', 'func': lambda: print("log in")},
+                                                 {'text': 'REGISTER', 'func': lambda: print("register")},
+                                                 {'text': 'QUIT', 'func': quit}])
+
+        # self.currentScreen = LoginRegisterScreen(height=235, height_offset=60, header_text='LOG IN',
+        #                                 inputs=[{'text': 'ENTER USERNAME'}, {'text': 'ENTER PASSWORD'}],
+        #                                 buttons=[{'text': 'BACK'}, {'text': 'LOG IN'}])
+
+        # self.currentScreen = LoginRegisterScreen(height=300, height_offset=90, header_text='REGISTER USER',
+        #                                 inputs=[{'text': 'ENTER USERNAME'}, {'text': 'ENTER PASSWORD'}, {'text': 'RE-ENTER PASSWORD'}],
+        #                                 buttons=[{'text': 'BACK'}, {'text': 'REGISTER'}])
         self.screen_has_been_shown_since = time()
 
     def on_draw(self):
