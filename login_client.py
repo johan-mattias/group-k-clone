@@ -6,10 +6,10 @@ class Client:
         self.base_url = base_url
 
     def register(self, username, password):
-        r = requests.post("http://" + self.base_url + "/auth/register",
-                          data={"username": username, "password": password})
-        # r = requests.post("https://" + self.base_url + "/auth/register",
-        #                   data={"username": username, "password": password}, verify='cert.pem')
+        # r = requests.post("http://" + self.base_url + "/auth/register",
+        #                  data={"username": username, "password": password})
+        r = requests.post("https://" + self.base_url + "/auth/register",
+                          data={"username": username, "password": password}, verify='cert.pem')
 
         if r.status_code == 200:
             with open("token.txt", "w") as token_file: # Write token to file
@@ -22,9 +22,9 @@ class Client:
         print("Token not found, login with password")
         username = input("username: ")
         password = input("password: ")
-        r = requests.post("http://" + self.base_url + "/auth/login", data={"username": username, "password": password})
-        # r = requests.post("https://" + self.base_url + "/auth/login", data={"username": username, "password": password},
-        #                   verify='cert.pem')
+        # r = requests.post("http://" + self.base_url + "/auth/login", data={"username": username, "password": password})
+        r = requests.post("https://" + self.base_url + "/auth/login", data={"username": username, "password": password},
+                           verify='cert.pem')
 
         if r.status_code == 200:
             print("login ok")
@@ -41,9 +41,9 @@ class Client:
             self.login_with_password()
         else:
             print(token)
-            r = requests.post("http://" + self.base_url + "/auth/login", headers={"Authorization": token})
-            # r = requests.post("https://" + self.base_url + "/auth/login", headers={"Authorization": token},
-            #                   verify='cert.pem')
+            # r = requests.post("http://" + self.base_url + "/auth/login", headers={"Authorization": token})
+            r = requests.post("https://" + self.base_url + "/auth/login", headers={"Authorization": token},
+                               verify='cert.pem')
 
             if r.status_code == 200:
                 print("login ok")
@@ -52,7 +52,8 @@ class Client:
 
 
 def main():
-    base_url = input("Input server URL: ")
+    # base_url = input("Input server URL: ")
+    base_url = "antoncarlsson.se:5000"
     c = Client(base_url)
 
     print("1. Register\n2. Login")
