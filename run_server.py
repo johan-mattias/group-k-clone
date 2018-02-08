@@ -1,74 +1,89 @@
-from network import utils, tcp_handler, udp_handler, comm
 from snider_glider.game import ServerGame
+from network import utils, udp_handler, comm
+from network.tcp_handler import *
 import math, time, threading
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, comm):
+    def __init__(self, comms):
         threading.Thread.__init__(self)
-        # create commincation between thread object
-        self.comm = comm 
-        # create handlers (sockets)
-        self.main_tcp_handler = tcp_handler.TcpHandler() #Should be port 12000
+        #commincation between thread object
+        self.comms = comms 
+        #create handlers (sockets)
+        self.main_tcp_handler = TcpHandler() #Should be port 12000
         self.udp_handler_listener = udp_handler.UdpHandler()
         self.udp_handler_sender = udp_handler.UdpHandler()
+
+        self.address_list = list() #The list udp uses to send and receive data.
+
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.address_list)
+        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms, self.address_list)
+        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_sender, self.comms)
 
         print("TCP on port:", self.main_tcp_handler.port) #debug
         print("UDP listener on port:", self.udp_handler_listener.port) #debug
         print("UDP sender on port:", self.udp_handler_sender.port) #debug        
 
     def run(self):
-        # create threads
-        address_list = list() #The list udp uses to send and receive data.
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comm, address_list)
-        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comm, address_list)        
-        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comm)
-        # start threads
+        #start threads
         self.main_tcp_thread.start()
         self.udp_thread_listener.start()
-        self.udp_thread_sender.start()        
+        self.udp_thread_sender.start()
 
 
 class MainTcpThread(threading.Thread):
-    def __init__(self, tcp_handler, udp_thread, comm):
+    def __init__(self, tcp_handler, udp_thread, comms):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.udp_thread = udp_thread
-        self.comm = comm
+        self.comms = comms
 
     def run(self):
         while True:
             remote_address = self.tcp_handler.accept()
-            new_tcp_handler = tcp_handler.TcpHandler()
-            new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0])
+            new_tcp_handler = TcpHandler()
+            new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0], self.comms)
             new_port = new_tcp_thread.tcp_handler.port
             new_tcp_thread.start()
-            #TODO
-            #check auth
+            #TODO check auth
             self.udp_thread.add_accepted_ip((remote_address[0], None))
-            #Send new_port to client
-            #close connection
-            #accept new connection
+            self.tcp_handler.send(DataFormat.PORT, new_port)
+            #TODO close connection
 
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, remote_ip, comm):
+    def __init__(self, tcp_handler, remote_ip, comms):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.remote_ip = remote_ip
-        self.comm = comm
+        self.comms = comms
 
     def run(self):
         remote_address = self.tcp_handler.accept()
         #TODO if(remote_address[0] != remote_ip): handle
-        print("Connection from", remote_address[0], "accepted")
-        print("Expected from", self.remote_ip)
+        while True:
+            self.tcp_loop()
+
+    def tcp_loop(self):
+        self.handle_send()
+        self.handle_recv()
+        
+    def handle_send(self):
+        #TODO check comms queue        
+        pass
+
+    def handle_recv(self):
+        self.tcp_handler.socket.settimeout(0.5)
+        try:
+            data = self.tcp_handler.receive()
+        except socket.timeout:
+            print("Socket timed out")
         
 
 class UdpThreadSender(threading.Thread):
-    def __init__(self, udp_handler, comm, address_list):
+    def __init__(self, udp_handler, comms, address_list):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comm = comm
+        self.comms = comms
         self.address_list = address_list
 
     def run(self):
@@ -80,7 +95,7 @@ class UdpThreadSender(threading.Thread):
 
             #send
             for address in self.address_list:
-                if(address[1] != None):
+                if address[1] != None:
                     self.udp_handler.send((address), (utils.unixtime(), int(x), int(y)))
                     
             #Sleep
@@ -91,10 +106,10 @@ class UdpThreadSender(threading.Thread):
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comm, address_list):
+    def __init__(self, udp_handler, comms, address_list):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comm = comm
+        self.comms = comms
         self.address_list = address_list
 
     def run(self):
@@ -118,10 +133,10 @@ def main():
 
     comms = comm.ServerComm()
 
+    network = NetworkHandler(comms)
     game_tread = ServerGame(9, comms, 1/30, (800, 600))
-    network_thread = NetworkHandler(comms)
 
-    network_thread.start()
+    network.start()
     game_tread.start()
 
 
