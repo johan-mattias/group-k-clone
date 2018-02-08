@@ -101,7 +101,8 @@ class MenuScreen(Spr):
                  x = 300,
                  y = __HEIGHT__/2,
                  bg_color='#FFFFFF',
-                 color='#FFFFFF'):
+                 color='#FFFFFF',
+                 buttons=[]):
         super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
 
         self.screen_text = pyglet.text.Label('GAME MENU',
@@ -115,12 +116,11 @@ class MenuScreen(Spr):
                                              color=convert_hashColor_to_RGBA(color),
                                              anchor_x='left')
 
-        BUTTON_OFFSET = 60
-        self.buttons = [
-            Button(text='LOG IN', y=__HEIGHT__/2 + BUTTON_OFFSET),
-            Button(text='REGISTER', y=(__HEIGHT__/2 + BUTTON_OFFSET - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__/2)),
-            Button(text='QUIT', y=(__HEIGHT__/2 + BUTTON_OFFSET - (__BUTTON_HEIGHT__*2) - (__BUTTON_HEIGHT__)))
-        ]
+        button_offset = 60
+        self.buttons = []
+        for button in buttons:
+            self.buttons.append(Button(text=button["text"], y=__HEIGHT__/2 + button_offset))
+            button_offset += - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__/2
 
     def _draw(self):
         self.draw()
@@ -143,7 +143,7 @@ class Window(pyglet.window.Window):
         self.alive = 1
         self.refreshrate = refreshrate
 
-        self.currentScreen = MenuScreen()  # <-- Important
+        self.currentScreen = MenuScreen(buttons=[{ 'text': 'LOG IN'}, { 'text': 'REGISTER'}, { 'text': 'QUIT'}])
         self.screen_has_been_shown_since = time()
 
     def on_draw(self):
