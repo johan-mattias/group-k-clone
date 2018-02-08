@@ -2,6 +2,13 @@ import pyglet as py
 import threading, time
 from snider_glider.player import Player, player_from_player_to
 from snider_glider.client_gui import ClientGUI
+from enum import Enum
+
+
+class Action(Enum):
+    ADD = 0
+    REMOVE = 1
+    MODIFY = 2
 
 
 class ClientGame(threading.Thread):
@@ -72,9 +79,14 @@ class ClientGame(threading.Thread):
 
 class ServerGame(threading.Thread):
     def __init__(self, thread_id, comm, tick_rate, game_size):
+        self.action_mapping = {
+            Action.ADD: self.add_player,
+            Action.REMOVE: self.remove_player
+        }
+
         threading.Thread__init__(self)
         self.thread_id = thread_id
-        self.comm = comm # type: comm.ServerComm
+        self.comm = comm
         self.players ={}
 
         self.TICK_RATE = tick_rate
@@ -82,6 +94,8 @@ class ServerGame(threading.Thread):
 
     def run(self):
         self.players = list()
+        while 1:
+            self.game_loop()
 
     def game_loop(self):
         self.modify_players()
@@ -94,10 +108,7 @@ class ServerGame(threading.Thread):
             self.modify_player(player_to, action)
 
     def modify_player(self, player_to, action):
-        if action == 'A':
-            self.add_player(player_to)
-        elif action == 'R':
-            self.remove_player(player_to)
+        self.action_mapping[action](player_to)
 
     def remove_player(self, player_to):
         i = 0

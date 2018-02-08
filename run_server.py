@@ -1,12 +1,13 @@
 from network import utils, tcp_handler, udp_handler, comm
+from snider_glider.game import ServerGame
 import math, time, threading
 
 class NetworkHandler(threading.Thread):
     def __init__(self, comm):
         threading.Thread.__init__(self)
-        #create commincation between thread object
+        # create commincation between thread object
         self.comm = comm 
-        #create handlers (sockets)
+        # create handlers (sockets)
         self.main_tcp_handler = tcp_handler.TcpHandler() #Should be port 12000
         self.udp_handler_listener = udp_handler.UdpHandler()
         self.udp_handler_sender = udp_handler.UdpHandler()
@@ -16,16 +17,17 @@ class NetworkHandler(threading.Thread):
         print("UDP sender on port:", self.udp_handler_sender.port) #debug        
 
     def run(self):
-        #create threads
+        # create threads
         address_list = list() #The list udp uses to send and receive data.
         self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comm, address_list)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comm, address_list)        
         self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comm)
-        #start threads
+        # start threads
         self.main_tcp_thread.start()
         self.udp_thread_listener.start()
         self.udp_thread_sender.start()        
-        
+
+
 class MainTcpThread(threading.Thread):
     def __init__(self, tcp_handler, udp_thread, comm):
         threading.Thread.__init__(self)
@@ -46,6 +48,7 @@ class MainTcpThread(threading.Thread):
             #Send new_port to client
             #close connection
             #accept new connection
+
 
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, remote_ip, comm):
@@ -86,6 +89,7 @@ class UdpThreadSender(threading.Thread):
     def add_accepted_ip(self, address):
         self.address_list.append(address)
 
+
 class UdpThreadListener(threading.Thread):
     def __init__(self, udp_handler, comm, address_list):
         threading.Thread.__init__(self)
@@ -109,13 +113,16 @@ class UdpThreadListener(threading.Thread):
             #sleep
             time.sleep(1/60)
 
-def main():
-    #Todo: Create comm object and give it to both network threads and GameThread when created.
-    comms = comm.ServerComm()
-    
-    network = NetworkHandler(comm)
-    network.start()
 
+def main():
+
+    comms = comm.ServerComm()
+
+    game_tread = ServerGame(9, comms, 1/30, (800, 600))
+    network_thread = NetworkHandler(comms)
+
+    network_thread.start()
+    game_tread.start()
 
 
 if __name__ == '__main__':

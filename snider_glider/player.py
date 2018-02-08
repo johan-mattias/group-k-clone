@@ -73,7 +73,7 @@ class PlayerTO:
         return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
 
     def get_position(self):
-        return (self.x, self.y)
+        return self.x, self.y
 
 
 def player_from_player_to(player_to):
