@@ -132,3 +132,6 @@ ENV/
 # vscode
 .vscode/
 .idea/
+
+# SSL key
+key.pem

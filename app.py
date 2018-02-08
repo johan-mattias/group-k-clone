@@ -85,6 +85,6 @@ def main():
 
 if __name__ == "__main__":
     # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
-    # app.run(ssl_context=('cert.pem', 'key.pem'))
-    app.run()
+    app.run(host='antoncarlsson.se', port=5000, ssl_context=('cert.pem', 'key.pem'))
+    # app.run()
     main()
