@@ -152,7 +152,10 @@ class UdpThreadListener(threading.Thread):
             time.sleep(1/60)
 
     def add_accepted_ip(self, address):
-        self.address_list.append(address)            
+        print("adding ip")
+        print(self.address_list)
+        self.address_list.append(address)
+        
 
 def main():
 
