@@ -9,7 +9,7 @@ class ClientGUI(py.window.Window):
         super().__init__(self.WIDTH, self.HEIGHT)
 
     def on_draw(self):
-        print("Should draw")
+        #print("Should draw")
         self.clear()
         for entity in self.entities:
             entity.draw(self)
