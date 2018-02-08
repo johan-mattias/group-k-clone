@@ -2,7 +2,9 @@ import pyglet
 from time import time, sleep
 
 __WIDTH__ = 800
-__HEIGHT__ = 600
+__HEIGHT__ = 500
+__BUTTON_HEIGHT__ = 40
+__BUTTON_WIDTH__ = 150
 
 def convert_hashColor_to_RGBA(color):
     if '#' in color:
@@ -55,20 +57,76 @@ class IntroScreen(Spr):
         if time() - 2 > self.has_been_visible_since:
             self.intro_text.text = 'foo studios'
 
+class Button(Spr):
+    def __init__(self,
+                 text='BUTTON',
+                 font_size=10,
+                 font_name=('Roboto', 'Calibri', 'Arial'),
+                 texture=None,
+                 width=__BUTTON_WIDTH__,
+                 height = __BUTTON_HEIGHT__,
+                 x = 300,
+                 y = __HEIGHT__/2,
+                 bg_color='#C4C4C4',
+                 color='#000000'):
+        super(Button, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
+
+        self.screen_text = pyglet.text.Label(text,
+                                        font_size=font_size,
+                                        font_name=font_name,
+                                        x=x,
+                                        y=y+height/2-20,
+                                        multiline=False,
+                                        width=width,
+                                        height=height,
+                                        color=convert_hashColor_to_RGBA(color),
+                                        anchor_x='center')
+
+    def _draw(self):
+        self.draw()
+        self.screen_text.draw()
+
 ## Then we have a MenuScreen (with a red background)
 ## Note that the RED color comes not from this class because the default is black #000000
 ## the color is set when calling/instanciating this class further down.
 ##
 ## But all this does, is show a "menu" (aka a text saying it's the menu..)
 class MenuScreen(Spr):
-    def __init__(self, texture=None, width=300, height = 150, x = 10, y = 10, color='#000000'):
-        super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=color)
+    def __init__(self,
+                 font_size=20,
+                 font_name=('Roboto', 'Calibri', 'Arial'),
+                 texture=None,
+                 width=300,
+                 height = 235,
+                 x = 300,
+                 y = __HEIGHT__/2,
+                 bg_color='#FFFFFF',
+                 color='#FFFFFF'):
+        super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
 
-        self.screen_text = pyglet.text.Label('Main menu screen', font_size=8, font_name=('Verdana', 'Calibri', 'Arial'), x=x, y=y+height/2-20, multiline=False, width=300, height=height, color=(100, 100, 100, 255), anchor_x='center')
+        self.screen_text = pyglet.text.Label('GAME IN DISGUISE',
+                                             font_size=font_size,
+                                             font_name=font_name,
+                                             x=x,
+                                             y=y+height/2+20,
+                                             multiline=False,
+                                             width=width,
+                                             height=height,
+                                             color=convert_hashColor_to_RGBA(color),
+                                             anchor_x='center')
+
+        BUTTON_OFFSET = 60
+        self.buttons = [
+            Button(text='LOG IN', y=__HEIGHT__/2 + BUTTON_OFFSET),
+            Button(text='REGISTER', y=(__HEIGHT__/2 + BUTTON_OFFSET - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__/2)),
+            Button(text='QUIT', y=(__HEIGHT__/2 + BUTTON_OFFSET - (__BUTTON_HEIGHT__*2) - (__BUTTON_HEIGHT__)))
+        ]
 
     def _draw(self):
         self.draw()
         self.screen_text.draw()
+        for button in self.buttons:
+            button._draw()
 
 ## This is the actual window, the game, the glory universe that is graphics.
 ## It will be blank, so you need to set up what should be visible when and where.
@@ -85,7 +143,7 @@ class Window(pyglet.window.Window):
         self.alive = 1
         self.refreshrate = refreshrate
 
-        self.currentScreen = IntroScreen(x=320, y=__HEIGHT__/2, width=50)  # <-- Important
+        self.currentScreen = MenuScreen()  # <-- Important
         self.screen_has_been_shown_since = time()
 
     def on_draw(self):
@@ -97,8 +155,8 @@ class Window(pyglet.window.Window):
     def render(self):
         self.clear()
 
-        if time() - 5 > self.screen_has_been_shown_since and type(self.currentScreen) is not MenuScreen:  # <-- Important
-            self.currentScreen = MenuScreen(x=320, y=__HEIGHT__-210, color='#FF0000') # <-- Important, here we switch screen (after 5 seconds)
+        # if time() - 5 > self.screen_has_been_shown_since and type(self.currentScreen) is not MenuScreen:  # <-- Important
+        #     self.currentScreen = MenuScreen(x=320, y=__HEIGHT__-210, color='#FF0000') # <-- Important, here we switch screen (after 5 seconds)
 
         self.currentScreen._draw() # <-- Important, draws the current screen
         self.flip()
