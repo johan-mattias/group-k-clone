@@ -61,7 +61,7 @@ class TcpThread(threading.Thread):
         self.tcp_handler.socket.settimeout(0.5)
         try:
             data = self.tcp_handler.receive()
-        except socket.timeout:
+        except:
             print("Socket timed out, nothing to receive")
 
 
@@ -100,7 +100,7 @@ class UdpThreadListener(threading.Thread):
                 address, data = self.udp_handler.receive()
                 x_pos = data['xv']
                 y_pos = data['yv']
-                print(" X:", x_pos, " - Y:", y_pos)
+                #print(" X:", x_pos, " - Y:", y_pos)
             
             #sleep
             time.sleep(1/60)        

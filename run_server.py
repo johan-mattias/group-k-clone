@@ -83,7 +83,7 @@ class TcpThread(threading.Thread):
         try:
             data_format, data = self.tcp_handler.receive()
             self.data_format_mapping[data_format](data)
-        except socket.timeout:
+        except:
             print("Socket timed out")
 
     def handle_player_update(self, data):
@@ -137,7 +137,7 @@ class UdpThreadListener(threading.Thread):
             #TEMPORARY
             #todo make nicer
             if data['clientTime'] == 0:
-                print(data)
+                #print(data)
                 for i in range(len(self.address_list)):
                     if self.address_list[i][0] == address[0]:             
                         self.address_list[i] = address
@@ -146,7 +146,7 @@ class UdpThreadListener(threading.Thread):
             #TEMPORARY
             
 
-            print(data)
+            #print(data)
             
             #sleep
             time.sleep(1/60)
