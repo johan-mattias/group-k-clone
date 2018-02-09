@@ -49,7 +49,7 @@ class Player:
         return self.x, self.y
 
     def to_transfer_object(self):
-        return PlayerTO(self.player_id, self.x, self.y, username=self.name)
+        return PlayerTO(self.player_id, self.x, self.y, x_velocity=self.movementSpeed[0], y_velocity=self.movementSpeed[1], username=self.name)
 
 
 class PlayerTO:
