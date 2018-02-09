@@ -18,7 +18,7 @@ class Player:
         self.left = keys[3]
         self.move_rate = 4
 
-    def generateMovementSpeed(self, keys):
+    def generate_movement_speed(self, keys):
         m1 = (0, 0)
         m2 = (0, 0)
         m3 = (0, 0)

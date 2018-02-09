@@ -113,7 +113,6 @@ def main():
     game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
     gui = game_thread.get_gui()
 
-
     game_thread.start()
     network_handler.start()
 
