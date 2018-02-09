@@ -32,10 +32,6 @@ class Player(pyglet.sprite.Sprite):
 
         self.check_bounds()
 
-    def network_update(self, x, y):
-        self.x = x
-        self.y = y
-
     def check_bounds(self):
         min_x = self.image.width / 2
         min_y = self.image.height / 2

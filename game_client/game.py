@@ -1,5 +1,6 @@
 import pyglet
 from player import Player
+from gameobject import GameObject
 from random import randint
 
 game_window = pyglet.window.Window(800, 600)
@@ -22,12 +23,12 @@ game_window.push_handlers(player)
 game_window.push_handlers(player.key_handler)
 
 player_batch = pyglet.graphics.Batch()
-player2 = Player(player_image, x=300, y=400, batch=player_batch)
-player3 = Player(player_image, x=400, y=300, batch=player_batch)
-player4 = Player(player_image, x=500, y=500, batch=player_batch)
-players = [player2, player3, player4]
+player2 = GameObject(player_image, x=300, y=400, batch=player_batch)
+player3 = GameObject(player_image, x=400, y=300, batch=player_batch)
+player4 = GameObject(player_image, x=500, y=500, batch=player_batch)
+other_players = [player2, player3, player4]
 
-game_objects = [player] + players
+game_objects = [player] + other_players
 
 
 @game_window.event
@@ -40,10 +41,10 @@ def on_draw():
 def update(dt):
     player.update(dt)
 
-    for p in players:
+    for p in other_players:
         x = p.x + randint(-10, 10) * 10 * dt
         y = p.y + randint(-10, 10) * 10 * dt
-        p.network_update(x, y)
+        p.update(x, y)
 
 
 if __name__ == '__main__':
