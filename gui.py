@@ -10,6 +10,7 @@ __BUTTON_WIDTH_SMALL__ = 100
 __INPUT_HEIGHT__ = 40
 __INPUT_WIDTH__ = 250
 __FONTS__ = ('Roboto', 'Calibri', 'Arial')
+__SERVER_URL__ = "localhost:5000"
 
 
 def convert_hashColor_to_RGBA(color):
@@ -251,6 +252,8 @@ class Window(pyglet.window.Window):
         #                                 buttons=[{'text': 'BACK'}, {'text': 'REGISTER'}])
         self.screen_has_been_shown_since = time()
 
+        self.login_client = Client(__SERVER_URL__)
+
     def on_draw(self):
         self.render()
 
@@ -266,28 +269,70 @@ class Window(pyglet.window.Window):
                         response = menu_button.choice()
                         print(response)
                         if response == "login_menu":
-                            self.currentScreen = LoginRegisterScreen(height=235, height_offset=60, header_text='LOG IN',
-                                                                     inputs=[{'text': 'ENTER USERNAME'},
-                                                                             {'text': 'ENTER PASSWORD'}],
-                                                                     buttons=[{'text': 'BACK', 'func': 'main_menu'},
-                                                                              {'text': 'LOG IN', 'func': 'login'}])
+                            self._login_menu()
+                        elif response == "login":
+                            self._login()
                         elif response == "register_menu":
-                            self.currentScreen = LoginRegisterScreen(height=300, height_offset=90,
-                                                                     header_text='REGISTER USER',
-                                                                     inputs=[{'text': 'ENTER USERNAME'},
-                                                                             {'text': 'ENTER PASSWORD'},
-                                                                             {'text': 'RE-ENTER PASSWORD'}],
-                                                                     buttons=[{'text': 'BACK', 'func': 'main_menu'},
-                                                                              {'text': 'REGISTER', 'func': 'register'}])
+                            self._register_menu()
+                        elif response == "register":
+                            self._register()
                         elif response == "main_menu":
-                            self.currentScreen = MenuScreen(header_text='GAME MENU',
-                                                            buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
-                                                                     {'text': 'REGISTER', 'func': 'register_menu'},
-                                                                     {'text': 'QUIT', 'func': 'quit'}])
-
+                            self._main_menu()
                         elif response == "quit":
-                            self.close()
-                            self.on_close()
+                            self._quit()
+
+    def _login_menu(self):
+        login_response = self.login_client.login()
+        if login_response == "ok":
+            print("Log in with token successful")
+        else:
+            print(login_response)
+            self.currentScreen = LoginRegisterScreen(height=235,
+                                                     height_offset=60,
+                                                     header_text='LOG IN',
+                                                     inputs=[{'text': 'ENTER USERNAME'},
+                                                             {'text': 'ENTER PASSWORD'}],
+                                                     buttons=[{'text': 'BACK', 'func': 'main_menu'},
+                                                              {'text': 'LOG IN', 'func': 'login'}])
+
+    def _login(self):
+        username = "anton"
+        password = "carlsson"
+        login_response = self.login_client.login_with_password(username, password)
+        if login_response == "ok":
+            print("Log in with password successful")
+        else:
+            print(login_response)
+
+    def _register_menu(self):
+        self.currentScreen = LoginRegisterScreen(height=300,
+                                                 height_offset=90,
+                                                 header_text='REGISTER USER',
+                                                 inputs=[{'text': 'ENTER USERNAME'},
+                                                         {'text': 'ENTER PASSWORD'},
+                                                         {'text': 'RE-ENTER PASSWORD'}],
+                                                 buttons=[{'text': 'BACK', 'func': 'main_menu'},
+                                                          {'text': 'REGISTER', 'func': 'register'}])
+
+    def _register(self):
+        username = "anton"
+        password = "carlsson"
+        register_response = self.login_client.register(username, password)
+        if register_response == "ok":
+            self._login()
+        else:
+            print(register_response)
+
+
+    def _main_menu(self):
+        self.currentScreen = MenuScreen(header_text='GAME MENU',
+                                        buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
+                                                 {'text': 'REGISTER', 'func': 'register_menu'},
+                                                 {'text': 'QUIT', 'func': 'quit'}])
+
+    def _quit(self):
+        self.close()
+        self.on_close()
 
     def render(self):
         self.clear()
