@@ -35,6 +35,7 @@ class ServerGame(threading.Thread):
             self.modify_player(player_to, action)
 
     def modify_player(self, player_to, action):
+        print (action)
         self.action_mapping[action](player_to)
 
     def remove_player(self, player_to):
