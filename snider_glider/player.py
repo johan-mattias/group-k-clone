@@ -11,7 +11,7 @@ class Player:
         self.x, self.y = (0, 0)
 
         self.name = name
-        if keys not None:
+        if keys is not None:
             self.up = keys[0]
             self.right = keys[1]
             self.down = keys[2]
