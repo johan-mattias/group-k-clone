@@ -30,11 +30,12 @@ class ServerGame(threading.Thread):
 
     def modify_players(self):
         while not self.comm.modification_queue.empty():
+            print("Should now add a player to the game")
             action, player_to = self.comm.modification_queue.get()
             self.modify_player(player_to, action)
 
     def modify_player(self, player_to, action):
-        print (action)
+        print ("Is in modify player function with: ", action)
         self.action_mapping[action](player_to)
 
     def remove_player(self, player_to):
@@ -50,6 +51,7 @@ class ServerGame(threading.Thread):
             print("Player is not in the game!!")
 
     def add_player(self, player_to):
+        print("player to add with id: ", player_to.player_id)
         new_player = player_from_player_to(player_to)
         self.players[new_player.player_id] = new_player
 
