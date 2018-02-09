@@ -67,9 +67,8 @@ class ServerGame(threading.Thread):
         dx = player_to.x_velocity
         dy = player_to.y_velocity
 
-        current_x, current_y = self.players[player_to.player_id].position
-        new_x = current_x + dx
-        new_y = current_y + dy
+        new_x = self.players[player_to.player_id].x + dx
+        new_y = self.players[player_to.player_id].y + dy
 
         self.players[player_to.player_id].position = (new_x, new_y)
 
