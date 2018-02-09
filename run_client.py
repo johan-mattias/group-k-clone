@@ -16,13 +16,11 @@ class NetworkHandler(threading.Thread):
         self.udp_handler_listener = udp_handler.UdpHandler()
         self.udp_handler_sender = udp_handler.UdpHandler()
 
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms)
+        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms)
+        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms)
 
     def run(self):
-        #create threads
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms)
-        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms)        
-        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms)
-        #start threads
         self.tcp_thread.start()
         self.udp_thread_listener.start()
         self.udp_thread_sender.start()
