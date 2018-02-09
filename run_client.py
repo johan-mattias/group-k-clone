@@ -103,6 +103,7 @@ class UdpThreadListener(threading.Thread):
             #TEMPORARY
             else:
                 address, data = self.udp_handler.receive_players()
+                print("Data received from server: ", data)
                 self.comms.add_players(data)
             
             #sleep
