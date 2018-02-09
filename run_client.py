@@ -34,14 +34,7 @@ class TcpThread(threading.Thread):
         self.comms = comms
 
     def run(self):
-        connected = False
-        while not connected:
-            self.tcp_handler.socket.settimeout(1)
-            try:
-                self.tcp_handler.connect(self.server_address)
-            except:
-                time.sleep(0.5)
-                print("Could not connect to server, trying again soon")
+        self.tcp_handler.connect(self.server_address)        
         data = self.tcp_handler.receive()
         new_port = data[1]
         self.server_address = (self.server_address[0], new_port)
