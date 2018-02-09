@@ -148,8 +148,9 @@ class UdpThreadListener(threading.Thread):
                         break
                 print(self.address_list)
             #TEMPORARY
-
-            self.comms.add_player(data)
+            
+            else:
+                self.comms.add_player(data)
 
             #print(data)
             
