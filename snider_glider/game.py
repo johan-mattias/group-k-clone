@@ -58,7 +58,7 @@ class ClientGame(threading.Thread):
 
     def update_player_positions(self):
         for player_to in self.comms.player_updates:
-            self.players[player_to.player_id].set_position(player_to.get_position())
+            self.players[player_to.player_id].set_position((player_to.x, player_to.y))
 
     def handle_player_inputs(self):
         try:
