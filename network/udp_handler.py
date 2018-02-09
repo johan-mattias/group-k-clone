@@ -16,7 +16,7 @@ class UdpHandler:
 
     def send(self, address, data):
         self.socket.sendto(pack_user_data(data), address)
-
+        
     def close(self):
         self.socket.close()
 
@@ -24,8 +24,8 @@ class UdpHandler:
 '''********************************
 user_data_struct
 ********************************'''
-user_data_struct = 'qhh'
-user_data_struct_names = ('clientTime', 'xv', 'yv') 
+user_data_struct = 'ihhq'
+user_data_struct_names = ('id', 'xv', 'yv', 'clientTime') 
 
 def pack_user_data(data):
     return pack(user_data_struct, *data)
@@ -38,3 +38,14 @@ def unpack_user_data(binary_user_data):
         data_dict[user_data_struct_names[i]] = data[i]
 
     return data_dict
+
+'''********************************
+server_data_struct
+********************************'''
+server_data_struct = ''
+server_data_struct_names = ('id', 'xv', 'yv', 'clientTime') 
+
+def pack_server_data(data):
+    pass
+def unpack_server_data(binary_server_data):
+    pass

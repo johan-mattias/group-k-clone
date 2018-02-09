@@ -74,7 +74,10 @@ class UdpThreadSender(threading.Thread):
     def run(self):
         while True:
             #send
-            self.udp_handler.send(("antoncarlsson.se", 12000), (utils.unixtime(), 1, 1))  
+            #todo not static address
+            player = self.comms.local_player
+            time = self.comms.time
+            self.udp_handler.send(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, time))
             #Sleep
             time.sleep(1/60)
 
