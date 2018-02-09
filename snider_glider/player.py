@@ -11,11 +11,11 @@ class Player:
         self.x, self.y = (0, 0)
 
         self.name = name
-
-        self.up = keys[0]
-        self.right = keys[1]
-        self.down = keys[2]
-        self.left = keys[3]
+        if keys not None:
+            self.up = keys[0]
+            self.right = keys[1]
+            self.down = keys[2]
+            self.left = keys[3]
         self.move_rate = 4
 
     def generate_movement_speed(self, keys):
@@ -73,6 +73,6 @@ class PlayerTO:
 
 
 def player_from_player_to(player_to):
-    new_player = Player(None, player_to.username, None)
+    new_player = Player(None, player_to.username, None, player_id=player_to.player_id)
     return new_player
     
