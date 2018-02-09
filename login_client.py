@@ -12,43 +12,43 @@ class Client:
         #                   data={"username": username, "password": password}, verify='cert.pem')
 
         if r.status_code == 200:
-            with open("token.txt", "w") as token_file: # Write token to file
+            with open("token.txt", "w") as token_file:  # Write token to file
                 token_file.write(r.text)
-            print("User created successfully!")
+            return "ok"
         else:
-            print(r.text)
+            return r.text
 
-    def login_with_password(self):
-        print("Token not found, login with password")
-        username = input("username: ")
-        password = input("password: ")
+    def login_with_password(self, username, password):
+        # print("Token not found, login with password")
+        # username = input("username: ")
+        # password = input("password: ")
         r = requests.post("http://" + self.base_url + "/auth/login", data={"username": username, "password": password})
         # r = requests.post("https://" + self.base_url + "/auth/login", data={"username": username, "password": password},
         #                   verify='cert.pem')
 
         if r.status_code == 200:
-            print("login ok")
             with open("token.txt", "w") as token_file:
                 token_file.write(r.text)
+            return "ok"
         else:
-            print(r.text)
+            return r.text
 
     def login(self):
         try:
             with open("token.txt", "r") as token_file:
                 token = token_file.readline().strip()
         except FileNotFoundError:
-            self.login_with_password()
+            return "token_not_found"
         else:
             print(token)
             r = requests.post("http://" + self.base_url + "/auth/login", headers={"Authorization": token})
             # r = requests.post("https://" + self.base_url + "/auth/login", headers={"Authorization": token},
-            #                   verify='cert.pem')
+            #                 verify='cert.pem')
 
             if r.status_code == 200:
-                print("login ok")
+                return "ok"
             else:
-                print(r.text)
+                return r.text
 
 
 def main():
