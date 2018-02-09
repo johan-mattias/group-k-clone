@@ -105,16 +105,19 @@ class UdpThreadSender(threading.Thread):
         self.address_list = address_list
 
     def run(self):
-        angle = 0
         while True:
-            #calculate position
-            x, y = math.cos(angle)*50 + 200, math.sin(angle)*50 + 200
-            angle += math.pi/30
+            player_list = self.comms.players
 
+            #TEMP
+            players = list()
+            for player in player_list:
+                players.append((player.player_id, player.x, player.y, utils.unixtime()))
+            #TEMP
+            
             #send
             for address in self.address_list:
                 if address[1] != None:
-                    self.udp_handler.send((address), (utils.unixtime(), int(x), int(y)))
+                    self.udp_handler.send_players((address), players)
                     
             #Sleep
             time.sleep(1/60)
@@ -132,7 +135,7 @@ class UdpThreadListener(threading.Thread):
     def run(self):
         while True:
             #receive
-            address, data = self.udp_handler.receive()
+            address, data = self.udp_handler.receive_player()
 
             #TEMPORARY
             #todo make nicer
@@ -144,7 +147,8 @@ class UdpThreadListener(threading.Thread):
                         break
                 print(self.address_list)
             #TEMPORARY
-            
+
+            self.comms.add_player(data)
 
             #print(data)
             
