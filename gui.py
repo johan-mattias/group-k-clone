@@ -237,6 +237,8 @@ class Window(pyglet.window.Window):
         self.alive = 1
         self.refresh_rate = refresh_rate
 
+        self.batch = pyglet.graphics.Batch()
+
         self.currentScreen = MenuScreen(header_text='GAME MENU',
                                         buttons=[{'text': 'LOG IN', 'func': lambda: print("log in")},
                                                  {'text': 'REGISTER', 'func': lambda: print("register")},
@@ -252,7 +254,8 @@ class Window(pyglet.window.Window):
         self.screen_has_been_shown_since = time()
 
     def on_draw(self):
-        self.render()
+        self.clear()
+        self.batch.draw()
 
     def on_key_down(self, symbol, mod):
         print('Keyboard down:', symbol)  # <-- Important
