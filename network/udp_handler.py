@@ -36,6 +36,7 @@ user_data_struct = 'ihhq'
 user_data_struct_names = ('player_id', 'xv', 'yv', 'client_time') 
 
 def pack_user_data(data):
+    print("Pack user data", data)
     return pack(user_data_struct, *data)
     
 def unpack_user_data(binary_user_data):
