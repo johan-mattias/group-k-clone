@@ -22,9 +22,9 @@ class ClientComm:
     def add_players(self, data):
         players = list()
         for player in data:
-            players.append(PlayerTO(data['player_id'],
-                                    x = data['x'],
-                                    y = data['y']))
+            players.append(PlayerTO(player['player_id'],
+                                    x = player['x'],
+                                    y = player['y']))
             
         self.player_updates = players
 
