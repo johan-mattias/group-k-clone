@@ -57,7 +57,7 @@ class Player:
 
 class PlayerTO:
 
-    def __init__(self, player_id, x=0, y=0, x_velocity=0, y_velocity=0, color=(0, 0, 0), username="shame"):
+    def __init__(self, player_id, x=None, y=None, x_velocity=None, y_velocity=None, color=None, username=None):
         self.player_id = player_id
         self.x = x
         self.y = y
