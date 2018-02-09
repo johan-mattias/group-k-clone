@@ -84,6 +84,7 @@ class TcpThread(threading.Thread):
             data_format, data = self.tcp_handler.receive()
             self.data_format_mapping[data_format](data)
         except:
+            pass
             #print("Socket timed out")
 
     def handle_player_update(self, data):
