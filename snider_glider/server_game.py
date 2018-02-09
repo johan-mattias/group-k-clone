@@ -50,6 +50,7 @@ class ServerGame(threading.Thread):
             print("Player is not in the game!!")
 
     def add_player(self, player_to):
+        print("player to add with id: ", player_to.player_id)
         new_player = player_from_player_to(player_to)
         self.players[new_player.player_id] = new_player
 
