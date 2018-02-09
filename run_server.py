@@ -55,7 +55,7 @@ class MainTcpThread(threading.Thread):
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, remote_ip, comms):
         self.data_format_mapping = {
-            DataFormat.PLAYER_UDPATE: self.handle_player_update(),
+            DataFormat.PLAYER_UDPATE: self.handle_player_update(data),
             DataFormat.TOKEN: self.handle_token(),
             DataFormat.PORT: self.handle_port()
         }
