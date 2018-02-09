@@ -82,12 +82,14 @@ class TcpThread(threading.Thread):
         self.tcp_handler.socket.settimeout(0.5)
         try:
             data_format, data = self.tcp_handler.receive()
+            print("TCP handler received data: ", data)
             self.data_format_mapping[data_format](data)
         except:
             print("Socket timed out")
 
     def handle_player_update(self, data):
         action, player_to = data
+        print("Should handle player update. Action: '", action, " - Player_to: ", player_to)
         self.comms.modification_queue.put((action, player_to))
 
     def handle_token(self, data):
