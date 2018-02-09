@@ -85,7 +85,8 @@ class TcpThread(threading.Thread):
             print("TCP handler received data: ", data)
             self.data_format_mapping[data_format](data)
         except:
-            print("Socket timed out")
+            pass
+            #print("Socket timed out")
 
     def handle_player_update(self, data):
         action, player_to = data
@@ -149,8 +150,9 @@ class UdpThreadListener(threading.Thread):
                         break
                 print(self.address_list)
             #TEMPORARY
-
-            self.comms.add_player(data)
+            
+            else:
+                self.comms.add_player(data)
 
             #print(data)
             

@@ -62,7 +62,8 @@ class TcpThread(threading.Thread):
         try:
             data = self.tcp_handler.receive()
         except:
-            print("Socket timed out, nothing to receive")
+            pass
+            #print("Socket timed out, nothing to receive")
 
 
 class UdpThreadSender(threading.Thread):

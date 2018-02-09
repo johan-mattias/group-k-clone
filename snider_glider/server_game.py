@@ -20,7 +20,6 @@ class ServerGame(threading.Thread):
         self.WIDTH, self.HEIGHT = game_size
 
     def run(self):
-        self.players = list()
         while 1:
             self.game_loop()
 
@@ -35,6 +34,7 @@ class ServerGame(threading.Thread):
             self.modify_player(player_to, action)
 
     def modify_player(self, player_to, action):
+        print (action)
         self.action_mapping[action](player_to)
 
     def remove_player(self, player_to):
