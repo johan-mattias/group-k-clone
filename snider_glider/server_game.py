@@ -20,7 +20,6 @@ class ServerGame(threading.Thread):
         self.WIDTH, self.HEIGHT = game_size
 
     def run(self):
-        self.players = list()
         while 1:
             self.game_loop()
 
