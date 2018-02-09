@@ -72,6 +72,6 @@ class ServerGame(threading.Thread):
 
     def set_player_updates(self):
         players_to_push = []
-        for player in self.players:
+        for p_id, player in self.players.items():
             players_to_push.append(player.to_transfer_object())
         self.comm.players = players_to_push
