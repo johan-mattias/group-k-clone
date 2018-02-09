@@ -41,9 +41,6 @@ class Player:
     def move(self, keys):
         self.generate_movement_speed(keys)
 
-    def set_position(self, pos):
-        self.x, self.y = pos
-
     def set_position(self, x, y):
         self.x = x
         self.y = y
