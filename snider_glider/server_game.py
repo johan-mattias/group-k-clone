@@ -58,7 +58,8 @@ class ServerGame(threading.Thread):
         while not self.comm.player_updates.empty():
             updates.append(self.comm.player_updates.get())
         for player_to, client_time in updates:
-            self.handle_player_update(player_to, client_time)
+            if player_to.player_id in self.players:
+                self.handle_player_update(player_to, client_time)
 
     def handle_player_update(self, player_to, client_time):
         dx = player_to.x_velocity
@@ -70,6 +71,7 @@ class ServerGame(threading.Thread):
 
         self.players[player_to.player_id].position = (new_x, new_y)
 
+        
     def set_player_updates(self):
         players_to_push = []
         for p_id, player in self.players.items():
