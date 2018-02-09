@@ -107,7 +107,7 @@ class UdpThreadListener(threading.Thread):
                 self.comms.add_players(data)
             
             #sleep
-            time.sleep(1/60)        
+            #time.sleep(1/60)        
 
 
 def main():
