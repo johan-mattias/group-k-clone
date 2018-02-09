@@ -122,10 +122,14 @@ class Button(Spr):
                                              color=convert_hashColor_to_RGBA(color),
                                              anchor_x='center')
         self.func = func
+        print(f'button: {self.func} x: {self.x}-{self.x+self.width} y: {self.y}-{self.y+self.height}')
 
     def _draw(self):
         self.draw()
         self.screen_text.draw()
+
+    def choice(self):
+        return self.func
 
 
 class LoginRegisterScreen(Spr):
@@ -166,7 +170,7 @@ class LoginRegisterScreen(Spr):
         self.width_offset = width_offset
         self.buttons = []
         for button in buttons:
-            self.buttons.append(Button(text=button["text"], width=__BUTTON_WIDTH_SMALL__, x = self.width_offset, y=__HEIGHT__//2 + self.height_offset))
+            self.buttons.append(Button(text=button["text"], func=button["func"], width=__BUTTON_WIDTH_SMALL__, x = self.width_offset, y=__HEIGHT__//2 + self.height_offset))
             self.width_offset += __BUTTON_WIDTH__
 
     def _draw(self):
@@ -197,7 +201,7 @@ class MenuScreen(Spr):
                                              font_size=font_size,
                                              font_name=font_name,
                                              x=x-152,
-                                             y=y+height/2+1,
+                                             y=y+height//2+1,
                                              multiline=False,
                                              width=width,
                                              height=height,
@@ -217,10 +221,6 @@ class MenuScreen(Spr):
         for button in self.buttons:
             button._draw()
 
-    @staticmethod
-    def quit():
-        return "QUIT"
-
 
 # This is the actual window, the game, the glory universe that is graphics.
 # It will be blank, so you need to set up what should be visible when and where.
@@ -238,9 +238,9 @@ class Window(pyglet.window.Window):
         self.refresh_rate = refresh_rate
 
         self.currentScreen = MenuScreen(header_text='GAME MENU',
-                                        buttons=[{'text': 'LOG IN', 'func': lambda: print("log in")},
-                                                 {'text': 'REGISTER', 'func': lambda: print("register")},
-                                                 {'text': 'QUIT', 'func': quit}])
+                                        buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
+                                                 {'text': 'REGISTER', 'func': 'register_menu'},
+                                                 {'text': 'QUIT', 'func': 'quit'}])
 
         # self.currentScreen = LoginRegisterScreen(height=235, height_offset=60, header_text='LOG IN',
         #                                 inputs=[{'text': 'ENTER USERNAME'}, {'text': 'ENTER PASSWORD'}],
@@ -258,12 +258,34 @@ class Window(pyglet.window.Window):
         print('Keyboard down:', symbol)  # <-- Important
 
     def on_mouse_press(self, x, y, button, modifiers):
+        print("x: ", x, " y: ", y)
         if button == pyglet.window.mouse.LEFT:
             for menu_button in self.currentScreen.buttons:
-                if x > menu_button.x and x < (menu_button.x + menu_button.width):
-                    if y > menu_button.y and y < (menu_button.y + menu_button.height):
-                        response = menu_button.func()
-                        if response == "QUIT":
+                if x > (menu_button.x - menu_button.width//2) and x < (menu_button.x + menu_button.width//2):
+                    if y > (menu_button.y - menu_button.height//2) and y < (menu_button.y + menu_button.height//2):
+                        response = menu_button.choice()
+                        print(response)
+                        if response == "login_menu":
+                            self.currentScreen = LoginRegisterScreen(height=235, height_offset=60, header_text='LOG IN',
+                                                                     inputs=[{'text': 'ENTER USERNAME'},
+                                                                             {'text': 'ENTER PASSWORD'}],
+                                                                     buttons=[{'text': 'BACK', 'func': 'main_menu'},
+                                                                              {'text': 'LOG IN', 'func': 'login'}])
+                        elif response == "register_menu":
+                            self.currentScreen = LoginRegisterScreen(height=300, height_offset=90,
+                                                                     header_text='REGISTER USER',
+                                                                     inputs=[{'text': 'ENTER USERNAME'},
+                                                                             {'text': 'ENTER PASSWORD'},
+                                                                             {'text': 'RE-ENTER PASSWORD'}],
+                                                                     buttons=[{'text': 'BACK', 'func': 'main_menu'},
+                                                                              {'text': 'REGISTER', 'func': 'register'}])
+                        elif response == "main_menu":
+                            self.currentScreen = MenuScreen(header_text='GAME MENU',
+                                                            buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
+                                                                     {'text': 'REGISTER', 'func': 'register_menu'},
+                                                                     {'text': 'QUIT', 'func': 'quit'}])
+
+                        elif response == "quit":
                             self.close()
                             self.on_close()
 
