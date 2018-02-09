@@ -6,6 +6,7 @@ class ClientComm:
     def __init__(self):
         # Game->Network
         self.local_player = None
+        self.time = 0
 
         # Network->Game
         # UDP

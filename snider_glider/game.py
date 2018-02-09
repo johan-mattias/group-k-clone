@@ -1,16 +1,17 @@
 import pyglet as py
 import threading, time
+import network.utils as net_utils
 from snider_glider.player import Player
 from snider_glider.client_gui import ClientGUI
 
 
 class ClientGame(threading.Thread):
 
-    def __init__(self,thread_id, thread_name, comm, size=(600, 400),tic_rate=1/60, demo_player=False):
+    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tic_rate=1/60, demo_player=False):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.thread_name = thread_name
-        self.comm = comm
+        self.comms = comms
 
         self.STDMOVEMENTSPEED = (2, 0)
         self.WIDTH, self.HEIGHT = size
@@ -53,10 +54,10 @@ class ClientGame(threading.Thread):
     def run(self):
         while 1:
             self.game_loop(1)
-            time.sleep(self.TIC_RATE)
+            #time.sleep(self.TIC_RATE)
 
     def update_player_positions(self):
-        for player_to in self.comm.player_updates:
+        for player_to in self.comms.player_updates:
             self.players[player_to.player_id].set_position(player_to.get_position())
 
     def handle_player_inputs(self):
@@ -64,7 +65,8 @@ class ClientGame(threading.Thread):
             self.demo_player.move(self.keys)
         except KeyError:
             print("No demo-player ya n00b")
-        self.comm.set_local_player(self.demo_player.to_transfer_object())
+        self.comms.set_local_player(self.demo_player.to_transfer_object())
+        self.comms.time = net_utils.unixtime()
 
     def get_gui(self):
         return py

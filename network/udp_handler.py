@@ -25,7 +25,7 @@ class UdpHandler:
 user_data_struct
 ********************************'''
 user_data_struct = 'ihhq'
-user_data_struct_names = ('id', 'xv', 'yv', 'clientTime') 
+user_data_struct_names = ('id', 'xv', 'yv', 'client_time') 
 
 def pack_user_data(data):
     return pack(user_data_struct, *data)
@@ -42,10 +42,29 @@ def unpack_user_data(binary_user_data):
 '''********************************
 server_data_struct
 ********************************'''
-server_data_struct = ''
-server_data_struct_names = ('id', 'xv', 'yv', 'clientTime') 
 
 def pack_server_data(data):
-    pass
+    server_data_struct = 'H'
+    data_tuple = (len(data),)
+    i = 0
+
+    for p in data:
+        server_data_struct += "ihhq"
+        data_tuple = data_tuple + p
+        i = i + 1
+
+    return pack(server_data_struct, *data_tuple)
+    
+
 def unpack_server_data(binary_server_data):
-    pass
+    number_of_players = unpack('H', binary_server_data[:2])[0]
+    server_data_struct = 'H' + "ihhq"*number_of_players
+    player_data = unpack(server_data_struct, binary_server_data)
+    player_list = []
+
+    i = 1
+    while i < len(player_data):
+        player_list.append({'id': player_data[i], 'x': player_data[i+1], 'y': player_data[i+2], 'client_time': player_data[i+3]})
+        i += 4
+
+    return player_list
