@@ -30,7 +30,7 @@ class ServerGame(threading.Thread):
 
     def modify_players(self):
         while not self.comm.modification_queue.empty():
-            player_to, action = self.comm.modification_queue.get()
+            action, player_to = self.comm.modification_queue.get()
             self.modify_player(player_to, action)
 
     def modify_player(self, player_to, action):
