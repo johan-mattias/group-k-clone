@@ -39,7 +39,7 @@ class Player:
         self.draw_player(py)
 
     def move(self, keys):
-        self.generateMovementSpeed(keys)
+        self.generate_movement_speed(keys)
 
     def set_position(self, pos):
         self.x, self.y = pos
@@ -71,10 +71,8 @@ class PlayerTO:
     def serialize(self):
         return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def get_position(self):
-        return self.x, self.y
-
 
 def player_from_player_to(player_to):
     new_player = Player(None, player_to.username, None)
     return new_player
+    

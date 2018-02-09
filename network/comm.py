@@ -19,6 +19,14 @@ class ClientComm:
     def set_local_player(self, player_to):
         self.local_player = player_to
 
+    def add_players(self, data):
+        players = list()
+        for player in data:
+            players.append(PlayerTO(data['player_id'],
+                                    x = data['x'],
+                                    y = data['y']))
+            
+        self.player_updates = players
 
 class ServerComm:
     def __init__(self):
@@ -32,3 +40,9 @@ class ServerComm:
         # TCP
         self.modification_queue = queue.Queue()# (action, PlayerTO)
         self.tick_rate = 1/30
+
+    def add_player(self, data):
+        self.player_updates.put((PlayerTO(data['player_id'],
+                                          x_velocity = data['xv'],
+                                          y_velocity = data['yv']),
+                                 data['client_time']))

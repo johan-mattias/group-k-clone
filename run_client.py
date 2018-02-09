@@ -34,7 +34,7 @@ class TcpThread(threading.Thread):
         self.comms = comms
 
     def run(self):
-        self.tcp_handler.connect(self.server_address)
+        self.tcp_handler.connect(self.server_address)        
         data = self.tcp_handler.receive()
         new_port = data[1]
         self.server_address = (self.server_address[0], new_port)
@@ -76,8 +76,7 @@ class UdpThreadSender(threading.Thread):
             #send
             #todo not static address
             player = self.comms.local_player
-            time = self.comms.time
-            self.udp_handler.send(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, time))
+            self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, self.comms.time))
             #Sleep
             time.sleep(1/60)
 
@@ -91,19 +90,19 @@ class UdpThreadListener(threading.Thread):
 
     def run(self):
         while True:
+            #TEMPORARY
             if not self.have_received_server_data:
-                self.udp_handler.send(("antoncarlsson.se", 12000), (0,0,0))
+                self.udp_handler.send_player(("antoncarlsson.se", 12000), (0,0,0,0))
                 try:
                     self.udp_handler.socket.settimeout(0.1)
-                    self.udp_handler.receive()
+                    self.udp_handler.receive_players()
                     self.have_received_server_data = True
                 except:
-                    print("havent gotten anything")
+                    pass
+            #TEMPORARY
             else:
-                address, data = self.udp_handler.receive()
-                x_pos = data['xv']
-                y_pos = data['yv']
-                #print(" X:", x_pos, " - Y:", y_pos)
+                address, data = self.udp_handler.receive_players()
+                self.comms.add_players(data)
             
             #sleep
             time.sleep(1/60)        

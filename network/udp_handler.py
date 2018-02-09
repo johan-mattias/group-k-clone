@@ -9,14 +9,22 @@ class UdpHandler:
         self.port = utils.get_free_udp_port()
         self.socket.bind(('', self.port))
         
-    def receive(self):
+    def receive_player(self):
         data, address = self.socket.recvfrom(1024)
 
         return address, unpack_user_data(data)
 
-    def send(self, address, data):
+    def receive_players(self):
+        data, address = self.socket.recvfrom(1024)
+
+        return address, unpack_server_data(data)
+    
+    def send_player(self, address, data):
         self.socket.sendto(pack_user_data(data), address)
-        
+    
+    def send_players(self, address, data):
+        self.socket.sendto(pack_server_data(data), address)
+    
     def close(self):
         self.socket.close()
 
@@ -60,7 +68,7 @@ def unpack_server_data(binary_server_data):
     number_of_players = unpack('H', binary_server_data[:2])[0]
     server_data_struct = 'H' + "ihhq"*number_of_players
     player_data = unpack(server_data_struct, binary_server_data)
-    player_list = []
+    player_list = list()
 
     i = 1
     while i < len(player_data):
