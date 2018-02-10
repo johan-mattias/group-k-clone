@@ -51,7 +51,6 @@ class MainTcpThread(threading.Thread):
             self.tcp_handler.send(DataFormat.PORT, new_port)
             self.tcp_handler.close_connection()
 
-
 class TcpThread(threading.Thread):
     def __init__(self, tcp_handler, remote_ip, comms):
         self.data_format_mapping = {

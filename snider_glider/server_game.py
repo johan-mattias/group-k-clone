@@ -48,6 +48,7 @@ class ServerGame(threading.Thread):
         try:
             del self.players[i]
         except KeyError:
+            pass
             #print("Player is not in the game!!")
 
     def add_player(self, player_to):
