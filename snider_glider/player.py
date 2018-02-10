@@ -3,8 +3,9 @@ import pickle
 
 class Player:
 
-    def __init__(self, image, name, keys, player_id=92):
+    def __init__(self, player_id, user_id, name, keys, image):
         self.player_id = player_id
+        self.user_id = user_id
         self.sprite = image
         self.movementSpeed = (0, 0)
         self.vSpeed = 0
@@ -53,9 +54,10 @@ class Player:
 
 
 class PlayerTO:
-
-    def __init__(self, player_id, x=None, y=None, x_velocity=None, y_velocity=None, color=None, username=None):
+    def __init__(self, player_id, user_id, name, keys, image):
+    def __init__(self, player_id, user_id, x=None, y=None, x_velocity=None, y_velocity=None, color=None, name=None, image = None):
         self.player_id = player_id
+        self.user_id = user_id
         self.x = x
         self.y = y
 
@@ -63,13 +65,13 @@ class PlayerTO:
         self.y_velocity = y_velocity
 
         self.color = color
-        self.username = username
+        self.name = name
+        self.image = image
 
     def serialize(self):
         return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def player_from_player_to(player_to):
-    new_player = Player(None, player_to.username, None, player_id=player_to.player_id)
-    return new_player
+def player_from_player_to(p):
+    return Player(p.player_id, p.user_id, p.name, None, p.image)
     

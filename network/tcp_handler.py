@@ -7,6 +7,8 @@ class DataFormat(Enum):
     PLAYER_UDPATE = 1
     PORT = 2
     PORTS = 3
+    PORTS_AND_PLAYER_ID = 4
+    PLAYERS = 5
 
 
 class TcpHandler:

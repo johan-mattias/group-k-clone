@@ -6,10 +6,11 @@ import math, time, threading
 
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, comms):
+    def __init__(self, comms, game_thread):
         threading.Thread.__init__(self)
         #commincation between thread object
-        self.comms = comms 
+        self.comms = comms
+        self.game_thread = game_thread
         #create handlers (sockets)
         self.main_tcp_handler = TcpHandler() #Should be port 12000
         self.udp_handler_listener = udp_handler.UdpHandler()
@@ -28,15 +29,15 @@ class NetworkHandler(threading.Thread):
     def run(self):
         #start threads
         self.main_tcp_thread.start()
-        self.udp_thread_listener.start()
-        self.udp_thread_sender.start()
+        #self.udp_thread_listener.start()
+        #self.udp_thread_sender.start()
 
 
 class MainTcpThread(threading.Thread):
-    def __init__(self, tcp_handler, udp_thread, comms):
+    def __init__(self, tcp_handler, udp_thread,_listener comms):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
-        self.udp_thread = udp_thread
+        self.udp_thread_listener = udp_thread_listener
         self.comms = comms
 
     def run(self):
@@ -44,11 +45,13 @@ class MainTcpThread(threading.Thread):
             remote_address = self.tcp_handler.accept()
             new_tcp_handler = TcpHandler()
             new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0], self.comms)
+            udp_port = self.udp_thread_listener.port
             new_port = new_tcp_thread.tcp_handler.port
+            new_id = self.game_thread.add_player()
             new_tcp_thread.start()
             #TODO check auth
             self.udp_thread.add_accepted_ip((remote_address[0], None))
-            self.tcp_handler.send(DataFormat.PORT, new_port)
+            self.tcp_handler.send(DataFormat.PORTS_AND_PLAYER_ID, (new_port, udp_port, new_id))
             self.tcp_handler.close_connection()
 
 class TcpThread(threading.Thread):
@@ -63,8 +66,14 @@ class TcpThread(threading.Thread):
         self.remote_ip = remote_ip
         self.comms = comms
 
+    def send_players(self):
+        player_list = list(self.comms.players)
+        self.tcp_handler.send(DataFormat.PLAYERS, player_list)
+            
     def run(self):
         remote_address = self.tcp_handler.accept()
+        self.send_players()
+
         #TODO if(remote_address[0] != remote_ip): handle
         while True:
             self.tcp_loop()
@@ -167,12 +176,13 @@ class UdpThreadListener(threading.Thread):
 def main():
 
     comms = comm.ServerComm()
+                                  
+    game_thread = ServerGame(9, comms, 1/30, (800, 600))
+    network = NetworkHandler(comms, game_thread)
 
-    network = NetworkHandler(comms)
-    game_tread = ServerGame(9, comms, 1/30, (800, 600))
 
     network.start()
-    game_tread.start()
+    game_thread.start()
 
 
 if __name__ == '__main__':

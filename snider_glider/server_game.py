@@ -14,7 +14,7 @@ class ServerGame(threading.Thread):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.comm = comm
-        self.players = {}
+        self.players = list()
 
         self.TICK_RATE = tick_rate
         self.WIDTH, self.HEIGHT = game_size
@@ -25,7 +25,7 @@ class ServerGame(threading.Thread):
 
     def game_loop(self):
         self.modify_players()
-        self.handle_player_updates()
+        self.update_players()
         self.set_player_updates()
 
     def modify_players(self):
@@ -39,43 +39,34 @@ class ServerGame(threading.Thread):
         self.action_mapping[action](player_to)
 
     def remove_player(self, player_to):
-        i = 0
-        while i < len(self.players):
-            if self.players[i].player_id == player_to.player_id:
-                break
-            else:
-                i += 1
-        try:
-            del self.players[i]
-        except KeyError:
-            pass
-            #print("Player is not in the game!!")
+        self.players.remove(self.players[player_to.player_id])
 
     def add_player(self, player_to):
-        #print("player to add with id: ", player_to.player_id)
-        new_player = player_from_player_to(player_to)
-        self.players[new_player.player_id] = new_player
+        new_id = len(self.players)
+        new_player = Player(new_id, 92, "McFace", None, None)
+        self.players.append(new_player)
+        return new_id
 
-    def handle_player_updates(self):
+    def update_players(self):
+        #Gettings player_to objects from comm object
         updates = []
         while not self.comm.player_updates.empty():
             updates.append(self.comm.player_updates.get())
-        for player_to, client_time in updates:
-            if player_to.player_id in self.players:
-                self.handle_player_update(player_to, client_time)
+            
+        #Updating each player that was found in comm object
+        for player_to in updates:
+            self.update_player(self.players[player_to.player_id], player_to)
 
-    def handle_player_update(self, player_to, client_time):
+            
+    def update_player(self, player, player_to):
         dx = player_to.x_velocity
         dy = player_to.y_velocity
 
-        new_x = self.players[player_to.player_id].x + dx
-        new_y = self.players[player_to.player_id].y + dy
-
-        self.players[player_to.player_id].x = new_x
-        self.players[player_to.player_id].x = new_y
+        player.x = player.x + dx
+        player.y = player.y + dy
         
     def set_player_updates(self):
         players_to_push = []
-        for p_id, player in self.players.items():
+        for player in self.players:
             players_to_push.append(player.to_transfer_object())
         self.comm.players = players_to_push

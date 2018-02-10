@@ -7,7 +7,7 @@ from snider_glider.client_gui import ClientGUI
 
 class ClientGame(threading.Thread):
 
-    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tic_rate=1/60, demo_player=False):
+    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tic_rate=1/100, demo_player=False):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.thread_name = thread_name
@@ -20,12 +20,12 @@ class ClientGame(threading.Thread):
         self.sprite_width = 50
         self.sprite_height = 50
 
-        self.players = dict()
+        self.players = list()
 
         self.WINDOW = ClientGUI(size, self)
         self.keys = py.window.key.KeyStateHandler()
         self.WINDOW.push_handlers(self.keys)
-
+        '''
         if demo_player:
             demo_player_image = py.image.load('testSprite.png')
             demo_player_sprite = py.sprite.Sprite(demo_player_image)
@@ -33,6 +33,7 @@ class ClientGame(threading.Thread):
             self.demo_player = Player(demo_player_sprite, 'McFace', (py.window.key.UP, py.window.key.RIGHT, py.window.key.DOWN, py.window.key.LEFT))
             self.players[self.demo_player.player_id] = self.demo_player
             self.WINDOW.add_entity(self.demo_player)
+        '''
 
         py.clock.schedule_interval(self.game_loop, self.TIC_RATE)
 
@@ -50,6 +51,7 @@ class ClientGame(threading.Thread):
         #print("Running game_loop")
         self.update_player_positions()
         self.handle_player_inputs()
+        
 
     def run(self):
         while 1:
@@ -68,5 +70,8 @@ class ClientGame(threading.Thread):
         self.comms.set_local_player(self.demo_player.to_transfer_object())
         self.comms.time = net_utils.unixtime()
 
+    def add_player(self, player):
+        self.players.append(player)
+        
     def get_gui(self):
         return py

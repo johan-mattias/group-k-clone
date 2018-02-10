@@ -14,7 +14,6 @@ class ClientComm:
 
         # TCP
         self.modification_queue = queue.Queue()
-        self.tick_rate = 1 / 30
 
     def set_local_player(self, player_to):
         self.local_player = player_to
@@ -39,7 +38,6 @@ class ServerComm:
 
         # TCP
         self.modification_queue = queue.Queue()# (action, PlayerTO)
-        self.tick_rate = 1/30
 
     def add_player(self, data):
         self.player_updates.put((PlayerTO(data['player_id'],

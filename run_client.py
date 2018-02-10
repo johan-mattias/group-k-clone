@@ -1,16 +1,18 @@
 from network import utils, udp_handler, comm
 from network.tcp_handler import *
 from snider_glider.game import ClientGame
+from snider_glider.player import *
 from snider_glider.utils import Action
 import threading, queue, time
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, comms):
+    def __init__(self, comms, game_thread):
         threading.Thread.__init__(self)
         #commincation between thread object
         self.comms = comms
+        self.game_thread = game_thread
         #create handlers (sockets)
         self.tcp_handler = TcpHandler()
         self.udp_handler_listener = udp_handler.UdpHandler()
@@ -18,32 +20,59 @@ class NetworkHandler(threading.Thread):
 
         self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms)
-        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms)
+        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms, self.game_thread)
 
     def run(self):
         self.tcp_thread.start()
-        self.udp_thread_listener.start()
-        self.udp_thread_sender.start()
+        #self.udp_thread_listener.start()
+        #self.udp_thread_sender.start()
 
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, server_address, comms):
+    def __init__(self, tcp_handler, server_address, comms, game_thread):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.server_address = server_address
         self.comms = comms
+        self.udp_port = None
+        self.player_id = None
+        self.game_thread = game_thread
 
-    def run(self):
-        self.tcp_handler.connect(self.server_address)        
+    def connect_to_server():
+        self.tcp_handler.connect(self.server_address)
         data = self.tcp_handler.receive()
-        new_port = data[1]
+        new_port = data[1][0]
+        self.udp_port = data[1][1]
+        self.player_id = data[1][2]
         self.server_address = (self.server_address[0], new_port)
+        
+    def connect_to_new_tcp_socket(self):
         self.tcp_handler.close()
         self.tcp_handler = TcpHandler()
         self.tcp_handler.connect(self.server_address)
+
+    def get_players(self):
+        data = self.tcp_handler.receive()
+        players = data[1]
+        for player in players:
+            new_player = player_from_player_to(player)
+            if new_player.player_id == self.player_id:
+                new_player.up = py.window.key.UP
+                new_player.right = py.window.key.RIGHT
+                new_player.down = py.window.key.DOWN
+                new_player.left = py.window.key.LEFT
+                new_player.sprite = py.image.load('testSprite.png')
+            self.game_thread.add_player(new_player)
+            
+    def run(self):
+        self.connect_to_server()
+        self.connect_to_new_tcp_socket()
+        self.get_players()
+        '''
         while self.comms.local_player is None:
             pass
         self.tcp_handler.send(DataFormat.PLAYER_UDPATE, (Action.ADD, self.comms.local_player))
+        '''
         while True:
             self.tcp_loop()
             
@@ -100,11 +129,15 @@ class UdpThreadListener(threading.Thread):
                     self.have_received_server_data = True
                 except:
                     pass
+                time.sleep(1/10)
             #TEMPORARY
             else:
-                address, data = self.udp_handler.receive_players()
-                print("Data received from server: ", data)
-                self.comms.add_players(data)
+                try:
+                    address, data = self.udp_handler.receive_players()
+                    print("Data received from server: ", data)
+                    self.comms.add_players(data)
+                except:
+                    pass
             
             #sleep
             #time.sleep(1/60)        
