@@ -34,7 +34,7 @@ class NetworkHandler(threading.Thread):
 
 
 class MainTcpThread(threading.Thread):
-    def __init__(self, tcp_handler, udp_thread,_listener comms):
+    def __init__(self, tcp_handler, udp_thread_listener, comms):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.udp_thread_listener = udp_thread_listener

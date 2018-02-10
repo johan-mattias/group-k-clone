@@ -38,7 +38,7 @@ class TcpThread(threading.Thread):
         self.player_id = None
         self.game_thread = game_thread
 
-    def connect_to_server():
+    def connect_to_server(self):
         self.tcp_handler.connect(self.server_address)
         data = self.tcp_handler.receive()
         new_port = data[1][0]
@@ -145,9 +145,10 @@ class UdpThreadListener(threading.Thread):
 
 def main():
     communication_object = comm.ClientComm()
-
-    network_handler = NetworkHandler(communication_object)
+ 
     game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
+    network_handler = NetworkHandler(communication_object, game_thread)
+
     gui = game_thread.get_gui()
 
     game_thread.start()

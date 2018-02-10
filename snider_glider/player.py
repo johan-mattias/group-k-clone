@@ -50,11 +50,10 @@ class Player:
         return self.x, self.y
 
     def to_transfer_object(self):
-        return PlayerTO(self.player_id, x=self.x, y=self.y, x_velocity=self.movementSpeed[0], y_velocity=self.movementSpeed[1], username=self.name)
+        return PlayerTO(self.player_id, self.user_id, x=self.x, y=self.y, x_velocity=self.movementSpeed[0], y_velocity=self.movementSpeed[1], username=self.name)
 
 
 class PlayerTO:
-    def __init__(self, player_id, user_id, name, keys, image):
     def __init__(self, player_id, user_id, x=None, y=None, x_velocity=None, y_velocity=None, color=None, name=None, image = None):
         self.player_id = player_id
         self.user_id = user_id
