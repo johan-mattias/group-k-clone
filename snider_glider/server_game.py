@@ -41,7 +41,7 @@ class ServerGame(threading.Thread):
     def remove_player(self, player_to):
         self.players.remove(self.players[player_to.player_id])
 
-    def add_player(self, player_to):
+    def add_player(self):
         new_id = len(self.players)
         new_player = Player(new_id, 92, "McFace", None, None)
         self.players.append(new_player)
