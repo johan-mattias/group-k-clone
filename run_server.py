@@ -45,7 +45,7 @@ class MainTcpThread(threading.Thread):
             remote_address = self.tcp_handler.accept()
             new_tcp_handler = TcpHandler()
             new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0], self.comms)
-            udp_port = self.udp_thread_listener.port
+            udp_port = self.udp_thread_listener.udp_handler.port
             new_port = new_tcp_thread.tcp_handler.port
             new_id = self.game_thread.add_player()
             new_tcp_thread.start()
