@@ -12,11 +12,13 @@ class Player:
         self.x, self.y = (0, 0)
 
         self.name = name
+        self.controllabe = False
         if keys is not None:
             self.up = keys[0]
             self.right = keys[1]
             self.down = keys[2]
             self.left = keys[3]
+            self.controllable = True
         self.move_rate = 4
 
     def generate_movement_speed(self, keys):

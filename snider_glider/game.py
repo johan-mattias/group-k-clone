@@ -63,15 +63,16 @@ class ClientGame(threading.Thread):
             self.players[player_to.player_id].set_position(player_to.x, player_to.y)
 
     def handle_player_inputs(self):
-        try:
-            self.demo_player.move(self.keys)
-        except KeyError:
-            print("No demo-player ya n00b")
-        self.comms.set_local_player(self.demo_player.to_transfer_object())
-        self.comms.time = net_utils.unixtime()
+        for player in self.players:
+            if player.controllable:
+                player.move(self.keys)
+                self.comms.set_local_player(player.to_transfer_object())
+                self.comms.time = net_utils.unixtime()
+                break
 
     def add_player(self, player):
         self.players.append(player)
+        self.WINDOW.add_entity(self.player)        
         
     def get_gui(self):
         return py

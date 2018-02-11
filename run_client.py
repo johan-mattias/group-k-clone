@@ -62,12 +62,14 @@ class TcpThread(threading.Thread):
                 new_player.down = py.window.key.DOWN
                 new_player.left = py.window.key.LEFT
                 new_player.sprite = py.image.load('testSprite.png')
+                self.game_thread.scale_sprite(new_player.sprite)
             self.game_thread.add_player(new_player)
             
     def run(self):
         self.connect_to_server()
         self.connect_to_new_tcp_socket()
         self.get_players()
+        print(self.game_thread.players)
         '''
         while self.comms.local_player is None:
             pass
