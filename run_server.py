@@ -51,7 +51,7 @@ class MainTcpThread(threading.Thread):
             new_id = self.parent.game_thread.add_player()
             new_tcp_thread.start()
             #TODO check auth
-            self.udp_thread.add_accepted_ip((remote_address[0], None))
+            self.udp_thread_listener.add_accepted_ip((remote_address[0], None))
             self.tcp_handler.send(DataFormat.PORTS_AND_PLAYER_ID, (new_port, udp_port, new_id))
             self.tcp_handler.close_connection()
 
