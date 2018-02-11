@@ -49,7 +49,7 @@ class MainTcpThread(threading.Thread):
             udp_port = self.udp_thread_listener.udp_handler.port
             new_port = new_tcp_thread.tcp_handler.port
             new_id = self.parent.game_thread.add_player()
-            print(self.game_thread.players)
+            print(self.parent.game_thread.players)
             new_tcp_thread.start()
             #TODO check auth
             self.udp_thread_listener.add_accepted_ip((remote_address[0], None))
