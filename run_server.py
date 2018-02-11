@@ -153,7 +153,7 @@ class UdpThreadListener(threading.Thread):
             #TEMPORARY
             #todo make nicer
             if data['client_time'] == 0:
-                #print(data)
+                print(data)
                 for i in range(len(self.address_list)):
                     if self.address_list[i][0] == address[0]:             
                         self.address_list[i] = address
@@ -163,8 +163,9 @@ class UdpThreadListener(threading.Thread):
             
             else:
                 self.comms.add_player(data)
+                print(data)
 
-            #print(data)
+            
             
             #sleep
             #time.sleep(1/60)
