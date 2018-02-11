@@ -6,6 +6,7 @@ from snider_glider.utils import Action
 import threading, queue, time
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
+PLAYER_SPRITE = pyglet.sprite.Sprite(pyglet.image.load('testSprite.png'))
 
 class NetworkHandler(threading.Thread):
     def __init__(self, comms, game_thread):
@@ -24,8 +25,8 @@ class NetworkHandler(threading.Thread):
 
     def run(self):
         self.tcp_thread.start()
-        #self.udp_thread_listener.start()
-        #self.udp_thread_sender.start()
+        self.udp_thread_listener.start()
+        self.udp_thread_sender.start()
 
 
 class TcpThread(threading.Thread):
@@ -55,7 +56,7 @@ class TcpThread(threading.Thread):
         data = self.tcp_handler.receive()
         players = data[1]
         for player in players:
-            new_player = player_from_player_to(player, 'testSprite.png')
+            new_player = player_from_player_to(player)
             if new_player.player_id == self.player_id:
                 gui = self.game_thread.get_gui()                    
                 new_player.up = gui.window.key.UP
@@ -63,8 +64,8 @@ class TcpThread(threading.Thread):
                 new_player.down = gui.window.key.DOWN
                 new_player.left = gui.window.key.LEFT
                 new_player.controllable = True
-                self.game_thread.scale_sprite(sprite)
-                new_player.sprite = sprite
+                new_player.sprite = PLAYER_SPRITE
+                self.game_thread.scale_sprite(PLAYER_SPRITE)
             self.game_thread.add_player(new_player)
             
     def run(self):
@@ -150,8 +151,6 @@ class UdpThreadListener(threading.Thread):
 def main():
     communication_object = comm.ClientComm()
 
-    player = Player(1, 2, "hej", None, 'testSprite.png')
-    print(player)
     game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
     network_handler = NetworkHandler(communication_object, game_thread)
     

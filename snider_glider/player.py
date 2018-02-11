@@ -71,6 +71,9 @@ class Player:
     def to_transfer_object(self):
         return PlayerTO(self.player_id, self.user_id, x=self.x, y=self.y, x_velocity=self.movementSpeed[0], y_velocity=self.movementSpeed[1], name=self.name)
 
+    def __repr__(self):
+        return str(self)
+    
     def __str__(self):
         return "pid: " + str(self.player_id) + " name: " + str(self.name) +  " image: " + str(self.image)
     
