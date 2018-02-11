@@ -34,8 +34,8 @@ class ClientGame(threading.Thread):
             self.players[self.demo_player.player_id] = self.demo_player
             self.WINDOW.add_entity(self.demo_player)
         '''
+        py.clock.schedule_interval(self.game_loop, self.TIC_RATE)        
 
-        py.clock.schedule_interval(self.game_loop, self.TIC_RATE)
 
     def run_game(self):
         py.app.run()
@@ -49,11 +49,13 @@ class ClientGame(threading.Thread):
 
     def game_loop(self, dt):
         #print("Running game_loop")
+        
         self.update_player_positions()
         self.handle_player_inputs()
         
 
     def run(self):
+
         while 1:
             self.game_loop(1)
             #time.sleep(self.TIC_RATE)
@@ -72,7 +74,7 @@ class ClientGame(threading.Thread):
 
     def add_player(self, player):
         self.players.append(player)
-        self.WINDOW.add_entity(self.player)        
+        self.WINDOW.add_entity(player)        
         
     def get_gui(self):
         return py

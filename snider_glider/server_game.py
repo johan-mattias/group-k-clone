@@ -70,3 +70,4 @@ class ServerGame(threading.Thread):
         for player in self.players:
             players_to_push.append(player.to_transfer_object())
         self.comm.players = players_to_push
+        

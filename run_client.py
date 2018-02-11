@@ -55,14 +55,16 @@ class TcpThread(threading.Thread):
         data = self.tcp_handler.receive()
         players = data[1]
         for player in players:
-            new_player = player_from_player_to(player)
+            new_player = player_from_player_to(player, 'testSprite.png')
             if new_player.player_id == self.player_id:
-                new_player.up = py.window.key.UP
-                new_player.right = py.window.key.RIGHT
-                new_player.down = py.window.key.DOWN
-                new_player.left = py.window.key.LEFT
-                new_player.sprite = py.image.load('testSprite.png')
-                self.game_thread.scale_sprite(new_player.sprite)
+                gui = self.game_thread.get_gui()                    
+                new_player.up = gui.window.key.UP
+                new_player.right = gui.window.key.RIGHT
+                new_player.down = gui.window.key.DOWN
+                new_player.left = gui.window.key.LEFT
+                new_player.controllable = True
+                self.game_thread.scale_sprite(sprite)
+                new_player.sprite = sprite
             self.game_thread.add_player(new_player)
             
     def run(self):
@@ -147,17 +149,21 @@ class UdpThreadListener(threading.Thread):
 
 def main():
     communication_object = comm.ClientComm()
- 
+
+    player = Player(1, 2, "hej", None, 'testSprite.png')
+    print(player)
     game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
     network_handler = NetworkHandler(communication_object, game_thread)
-
-    gui = game_thread.get_gui()
-
-    game_thread.start()
+    
     network_handler.start()
+
+    gui = game_thread.get_gui()    
+    game_thread.start()
 
     gui.gl.glClearColor(1, 1, 1, 1)
     gui.app.run()
+
+
 
 
 if __name__ == '__main__':
