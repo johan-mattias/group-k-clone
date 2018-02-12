@@ -24,7 +24,7 @@ class GameWindow(pyglet.window.Window):
 
     def create_new_player(self, user_id, player_id, name, npc=True):
         batch = self.player_batch if npc else None
-        player_image = self.player_images[player_id % 4 + 1]
+        player_image = self.player_images[player_id % 4]
         player = Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0,
                         batch=batch)
         
@@ -50,11 +50,6 @@ class GameWindow(pyglet.window.Window):
     def update(self, dt):
         if self.player != None:
             self.player.update(dt)
-
-        for p in self.other_players:
-            x = p.x + randint(-10, 10) * 10 * dt
-            y = p.y + randint(-10, 10) * 10 * dt
-            p.update(dt, x, y)
 
     def check_modification_queue(self):
         while not self.shared_communication.modification_queue.empty():

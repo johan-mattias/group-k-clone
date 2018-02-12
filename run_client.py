@@ -99,7 +99,6 @@ class UdpThreadListener(threading.Thread):
         while True:
             #TEMPORARY
             if not self.have_received_server_data:
-                print("have no received")
                 self.udp_handler.send_player(("antoncarlsson.se", 12000), (0,0,0,0))
                 try:
                     self.udp_handler.socket.settimeout(0.1)
@@ -112,7 +111,11 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    print(data)
+                    players = self.parent.game_window.other_players
+                    for player in data:
+                        id = player['player_id']
+                        players[id].x = player['x']
+                        players[id].y = player['y']
                     #self.comms.add_players(data)
                     #self.game_thread.update(data)
                 except:
