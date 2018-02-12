@@ -19,7 +19,7 @@ class NetworkHandler(threading.Thread):
         self.udp_handler_listener = udp_handler.UdpHandler()
         self.udp_handler_sender = udp_handler.UdpHandler()
 
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms)
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.game_thread)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms)
         self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms, self.game_thread)
 
@@ -118,7 +118,7 @@ class UdpThreadSender(threading.Thread):
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comms):
+    def __init__(self, udp_handler, comms, game_thread):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
         self.comms = comms
@@ -140,7 +140,8 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    self.comms.add_players(data)
+                    #self.comms.add_players(data)
+                    self.game_thread.update(data)
                 except:
                     pass
             

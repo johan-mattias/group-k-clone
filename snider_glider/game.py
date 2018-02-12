@@ -7,7 +7,7 @@ from snider_glider.client_gui import ClientGUI
 
 class ClientGame(threading.Thread):
 
-    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tic_rate=1/100, demo_player=False):
+    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tick_rate=1/100, demo_player=False):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.thread_name = thread_name
@@ -15,7 +15,7 @@ class ClientGame(threading.Thread):
 
         self.STDMOVEMENTSPEED = (2, 0)
         self.WIDTH, self.HEIGHT = size
-        self.TIC_RATE = tic_rate
+        self.TICK_RATE = tick_rate
 
         self.sprite_width = 50
         self.sprite_height = 50
@@ -34,8 +34,12 @@ class ClientGame(threading.Thread):
             self.players[self.demo_player.player_id] = self.demo_player
             self.WINDOW.add_entity(self.demo_player)
         '''
-        py.clock.schedule_interval(self.game_loop, self.TIC_RATE)        
+        py.clock.schedule_interval(self.game_loop, self.TICK_RATE)        
 
+    def update(self):
+        id = data['player_id']
+        self.players[id].x = data['x']
+        self.players[id].y = data['y']        
 
     def run_game(self):
         py.app.run()
@@ -61,8 +65,11 @@ class ClientGame(threading.Thread):
             #time.sleep(self.TIC_RATE)
 
     def update_player_positions(self):
+        '''
         for player_to in self.comms.player_updates:
             self.players[player_to.player_id].set_position(player_to.x, player_to.y)
+        '''
+        pass
 
     def handle_player_inputs(self):
         for player in self.players:

@@ -121,7 +121,6 @@ class UdpThreadSender(threading.Thread):
         while True:
             player_list = list(self.comms.players)
 
-            print(player_list)
             #TEMP
             players = list()
             for player in player_list:
