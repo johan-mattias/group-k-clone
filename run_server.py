@@ -85,7 +85,7 @@ class TcpThread(threading.Thread):
             print("Correct expected address")
         else:
             print("Wrong excpeted address")
-            print("Expected:", self.ip)
+            print("Expected:", self.remote_ip)
             print("Got:", remote_address[0])
             
         self.send_players()
