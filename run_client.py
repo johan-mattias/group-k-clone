@@ -26,7 +26,7 @@ class NetworkHandler(threading.Thread):
 
     def run(self):
         self.tcp_thread.start()
-        #self.udp_thread_listener.start()
+        self.udp_thread_listener.start()
         self.udp_thread_sender.start()
 
 
@@ -78,13 +78,12 @@ class UdpThreadSender(threading.Thread):
 
     def run(self):
         while True:
-            if (player != None):
-                print(self.parent.game_window.player.x, self.parent.game_window.player.y)
-            '''
-            player = self.comms.local_player
+            player = self.parent.game_window.player            
             if player != None:
-                self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, self.comms.time))
-            '''
+                self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id,
+                                                                           int(player.x),
+                                                                           int(player.y),
+                                                                           utils.unixtime()))
             #Sleep
             time.sleep(1/60)
 
@@ -100,6 +99,7 @@ class UdpThreadListener(threading.Thread):
         while True:
             #TEMPORARY
             if not self.have_received_server_data:
+                print("have no received")
                 self.udp_handler.send_player(("antoncarlsson.se", 12000), (0,0,0,0))
                 try:
                     self.udp_handler.socket.settimeout(0.1)
@@ -112,7 +112,8 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    self.comms.add_players(data)
+                    print(data)
+                    #self.comms.add_players(data)
                     #self.game_thread.update(data)
                 except:
                     pass

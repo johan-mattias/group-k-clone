@@ -168,7 +168,7 @@ class UdpThreadListener(threading.Thread):
     def run(self):
         while True:
             address, data = self.udp_handler.receive_player()
-
+            print(data)
             if data['client_time'] == 0:
                 self.update_address(address)
             else:
