@@ -18,9 +18,12 @@ class GameWindow(pyglet.window.Window):
         for i in range(1, 4):
             self.player_images.append(self.center_image(pyglet.resource.image('player' + str(i) + '.png')))
 
-    def create_new_player(self, user_id, player_id, name, npc=True, batch=None):
+    def create_new_player(self, user_id, player_id, name, npc=True):
+        batch = self.player_batch if npc else None
         player_image = self.player_images[player_id % 4 + 1]
-        player = Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0, batch=batch)
+
+        player = Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0,
+                        batch=batch)
         if npc:
             self.other_players.append(player)
         else:
