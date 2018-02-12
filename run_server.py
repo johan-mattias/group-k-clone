@@ -61,7 +61,7 @@ class MainTcpThread(threading.Thread):
         new_tcp_thread.start()        
         return new_tcp_thread
 
-    def send_info_to_client(tcp_thread, player_id):
+    def send_info_to_client(self, tcp_thread, player_id):
         tcp_port = tcp_thread.tcp_handler.port
         udp_port = self.parent.udp_thread_listener.udp_handler.port
         self.tcp_handler.send(DataFormat.PORTS_AND_PLAYER_ID, (tcp_port, udp_port, player_id))
