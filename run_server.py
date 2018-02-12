@@ -29,8 +29,8 @@ class NetworkHandler(threading.Thread):
     def run(self):
         #start threads
         self.main_tcp_thread.start()
-        self.udp_thread_listener.start()
-        self.udp_thread_sender.start()
+        #self.udp_thread_listener.start()
+        #self.udp_thread_sender.start()
 
 
 class MainTcpThread(threading.Thread):

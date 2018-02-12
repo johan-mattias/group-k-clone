@@ -57,3 +57,9 @@ class Player(pyglet.sprite.Sprite):
             self.velocity_y = 30.0
         if self.y > max_y:
             self.y = max_y
+            
+    def __repr__(self):
+        return str(self)
+    
+    def __str__(self):
+        return "player_id: " + str(self.player_id) + " user_id: " + str(self.user_id) + " name: " + str(self.name) +  " x: " + str(self.x) + " y: " + str(self.y)

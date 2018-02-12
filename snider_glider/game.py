@@ -1,6 +1,5 @@
 import pyglet
-from player import Player
-from gameobject import GameObject
+from snider_glider.player import Player
 from random import randint
 
 
@@ -8,15 +7,13 @@ class GameWindow(pyglet.window.Window):
     def __init__(self, width=800, height=600):
         pyglet.window.Window.__init__(self, width=width, height=height)
         self.other_players = []
-
-        self.create_new_player(1, 1, "Anton", False)
-        self.push_handlers(self.player)
-        self.push_handlers(self.player.key_handler)
+        self.player = None
+        #self.create_new_player(1, 1, "Anton", False)
 
         self.player_batch = pyglet.graphics.Batch()
-        self.create_new_player(2, 2, "Fredrik", True, self.player_batch)
-        self.create_new_player(3, 3, "Filip", True, self.player_batch)
-        self.create_new_player(4, 4, "Kasper", True, self.player_batch)
+        #self.create_new_player(2, 2, "Fredrik", True, self.player_batch)
+        #self.create_new_player(3, 3, "Filip", True, self.player_batch)
+        #self.create_new_player(4, 4, "Kasper", True, self.player_batch)
 
     def create_new_player(self, user_id, player_id, name, npc=True, batch=None):
         player_image = self.center_image(pyglet.resource.image('player' + str(player_id % 4 + 1) + '.png'))
@@ -25,6 +22,8 @@ class GameWindow(pyglet.window.Window):
             self.other_players.append(player)
         else:
             self.player = player
+            self.push_handlers(self.player)
+            self.push_handlers(self.player.key_handler)            
 
     @staticmethod
     def center_image(image):
@@ -33,12 +32,14 @@ class GameWindow(pyglet.window.Window):
         return image
 
     def on_draw(self):
-        game_window.clear()
-        self.player.draw()
+        self.clear()
+        if self.player != None:
+            self.player.draw()
         self.player_batch.draw()
 
     def update(self, dt):
-        self.player.update(dt)
+        if self.player != None:
+            self.player.update(dt)
 
         for p in self.other_players:
             x = p.x + randint(-10, 10) * 10 * dt

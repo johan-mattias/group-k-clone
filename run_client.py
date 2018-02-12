@@ -1,43 +1,41 @@
-from network import utils, udp_handler, comm
+from network import utils
+from network.udp_handler import *
 from network.tcp_handler import *
-from snider_glider.game import ClientGame
+from snider_glider.game import *
 from snider_glider.player import *
 from snider_glider.utils import Action
 import threading, queue, time
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
-PLAYER_SPRITE = pyglet.sprite.Sprite(pyglet.image.load('testSprite.png'))
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, comms, game_thread):
+    def __init__(self, game_window):
         threading.Thread.__init__(self)
         #commincation between thread object
-        self.comms = comms
-        self.game_thread = game_thread
+        self.game_window = game_window
         #create handlers (sockets)
         self.tcp_handler = TcpHandler()
-        self.udp_handler_listener = udp_handler.UdpHandler()
-        self.udp_handler_sender = udp_handler.UdpHandler()
+        self.udp_handler_listener = UdpHandler()
+        self.udp_handler_sender = UdpHandler()
 
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.game_thread)
-        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms)
-        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms, self.game_thread)
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self)
+        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self)
+        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self)
 
     def run(self):
         self.tcp_thread.start()
-        self.udp_thread_listener.start()
-        self.udp_thread_sender.start()
+        #self.udp_thread_listener.start()
+        #self.udp_thread_sender.start()
 
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, server_address, comms, game_thread):
+    def __init__(self, tcp_handler, server_address, parent):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.server_address = server_address
-        self.comms = comms
         self.udp_port = None
         self.player_id = None
-        self.game_thread = game_thread
+        self.parent = parent
 
     def connect_to_server(self):
         self.tcp_handler.connect(self.server_address)
@@ -54,7 +52,10 @@ class TcpThread(threading.Thread):
 
     def get_players(self):
         data = self.tcp_handler.receive()
+        print (data)
         players = data[1]
+        print(players)
+        '''
         for player in players:
             new_player = player_from_player_to(player)
             if new_player.player_id == self.player_id:
@@ -67,19 +68,20 @@ class TcpThread(threading.Thread):
                 new_player.sprite = PLAYER_SPRITE
                 self.game_thread.scale_sprite(PLAYER_SPRITE)
             self.game_thread.add_player(new_player)
+        '''
             
     def run(self):
         self.connect_to_server()
         self.connect_to_new_tcp_socket()
         self.get_players()
-        print(self.game_thread.players)
+        print(self.parent.game_window.players)
 
 
 class UdpThreadSender(threading.Thread):
-    def __init__(self, udp_handler, comms):
+    def __init__(self, udp_handler, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comms = comms
+        self.parent = parent
 
     def run(self):
         while True:
@@ -93,12 +95,11 @@ class UdpThreadSender(threading.Thread):
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comms, game_thread):
+    def __init__(self, udp_handler, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comms = comms
         self.have_received_server_data = False
-        self.game_thread = game_thread
+        self.parent = parent
 
     def run(self):
         while True:
@@ -126,21 +127,13 @@ class UdpThreadListener(threading.Thread):
 
 
 def main():
-    communication_object = comm.ClientComm()
-
-    game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
-    network_handler = NetworkHandler(communication_object, game_thread)
+    game_window = GameWindow(width=800, height=600)
+    network_handler = NetworkHandler(game_window)
     
     network_handler.start()
-
-    gui = game_thread.get_gui()    
-    game_thread.start()
-
-    gui.gl.glClearColor(1, 1, 1, 1)
-    gui.app.run()
-
-
-
+    
+    pyglet.clock.schedule_interval(game_window.update, 1 / 120.0)
+    pyglet.app.run()
 
 if __name__ == '__main__':
     main()
