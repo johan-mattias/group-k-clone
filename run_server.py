@@ -158,10 +158,12 @@ class UdpThreadListener(threading.Thread):
         self.parent = parent
 
     def update_address(self, address):
+        print(address)
         for i in range(len(self.address_list)):
-            if self.address_list[i][0] == address[0] and self.address_list[i][1] = None:
+            if self.address_list[i][0] == address[0] and self.address_list[i][1] == None:
                 self.address_list[i] = address
                 break
+        print(self.address_list)
         
             
 
@@ -172,8 +174,11 @@ class UdpThreadListener(threading.Thread):
                 self.update_address(address)
             else:
                 id = data['player_id']
-                self.parent.game.players[id].x = data['x']
-                self.parent.game.players[id].y = data['y']                
+                try:
+                    self.parent.game.players[id].x = data['x']
+                    self.parent.game.players[id].y = data['y']
+                except:
+                    pass
 
 
 def main():                       
