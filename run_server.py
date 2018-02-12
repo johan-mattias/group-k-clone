@@ -18,7 +18,7 @@ class NetworkHandler(threading.Thread):
 
         self.address_list = list() #The list udp uses to send and receive data.
 
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.address_list)
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.address_list, self)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms, self.address_list)
         self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comms, self)
 
@@ -139,11 +139,12 @@ class UdpThreadSender(threading.Thread):
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comms, address_list):
+    def __init__(self, udp_handler, comms, address_list, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
         self.comms = comms
         self.address_list = address_list
+        self.parent = parent
 
     def run(self):
         while True:
@@ -163,7 +164,7 @@ class UdpThreadListener(threading.Thread):
             
             else:
                 #self.comms.add_player(data)
-                self.parent.update(data)
+                self.parent.game_thread.update(data)
             
             
             #sleep
