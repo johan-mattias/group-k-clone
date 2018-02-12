@@ -1,5 +1,5 @@
 import threading
-
+import time
 from snider_glider.utils import Action
 from snider_glider.player import *
 
@@ -27,6 +27,8 @@ class ServerGame(threading.Thread):
         self.modify_players()
         self.update_players()
         self.set_player_updates()
+        time.sleep(self.TICK_RATE)
+        
 
     def modify_players(self):
         while not self.comm.modification_queue.empty():
