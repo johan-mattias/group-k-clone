@@ -93,7 +93,12 @@ class PlayerTO:
 
     def serialize(self):
         return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
-
+    
+    def __repr__(self):
+        return str(self)
+    
+    def __str__(self):
+        return "pid: " + str(self.player_id) + " x: " + str(self.x) + " y: " + str(self.y)
 
 def player_from_player_to(p, image = None):
     if image == None:
