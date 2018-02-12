@@ -73,31 +73,6 @@ class TcpThread(threading.Thread):
         self.connect_to_new_tcp_socket()
         self.get_players()
         print(self.game_thread.players)
-        '''
-        while self.comms.local_player is None:
-            pass
-        self.tcp_handler.send(DataFormat.PLAYER_UDPATE, (Action.ADD, self.comms.local_player))
-        '''
-        while True:
-            self.tcp_loop()
-            
-    def tcp_loop(self):
-        self.handle_send()
-        self.handle_recv()
-        
-    def handle_send(self):
-        #TODO check comms queue
-        while not self.comms.modification_queue.empty():
-            player_to, action = self.comms.modification_queue.get()
-            self.tcp_handler.send((DataFormat.PLAYER_UDPATE, (action, player_to)))
-
-    def handle_recv(self):
-        self.tcp_handler.socket.settimeout(0.5)
-        try:
-            data = self.tcp_handler.receive()
-        except:
-            pass
-            #print("Socket timed out, nothing to receive")
 
 
 class UdpThreadSender(threading.Thread):

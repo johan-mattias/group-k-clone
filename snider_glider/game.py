@@ -7,7 +7,7 @@ from snider_glider.client_gui import ClientGUI
 
 class ClientGame(threading.Thread):
 
-    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tick_rate=1/60, demo_player=False):
+    def __init__(self,thread_id, thread_name, comms, size=(800, 600),tick_rate=1/60, demo_player=False):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.thread_name = thread_name

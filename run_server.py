@@ -1,26 +1,26 @@
 from snider_glider.server_game import ServerGame
 from snider_glider.utils import Action
-from network import utils, udp_handler, comm
+from network import utils
 from network.tcp_handler import *
+from newwork.udp_handler import *
 import math, time, threading
 
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, comms, game_thread):
+    def __init__(self, game):
         threading.Thread.__init__(self)
-        #commincation between thread object
-        self.comms = comms
-        self.game_thread = game_thread
+        #game object
+        self.game = game
         #create handlers (sockets)
         self.main_tcp_handler = TcpHandler() #Should be port 12000
-        self.udp_handler_listener = udp_handler.UdpHandler()
-        self.udp_handler_sender = udp_handler.UdpHandler()
+        self.udp_handler_listener = UdpHandler()
+        self.udp_handler_sender = UdpHandler()
 
         self.address_list = list() #The list udp uses to send and receive data.
 
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.address_list, self)
-        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms, self.address_list)
-        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.udp_thread_listener, self.comms, self)
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.address_list, self)
+        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.address_list, self)
+        self.main_tcp_thread = MainTcpThread(self.main_tcp_handler, self.address_list, self)
 
         print("TCP on port:", self.main_tcp_handler.port) #debug
         print("UDP listener on port:", self.udp_handler_listener.port) #debug
@@ -34,74 +34,84 @@ class NetworkHandler(threading.Thread):
 
 
 class MainTcpThread(threading.Thread):
-    def __init__(self, tcp_handler, udp_thread_listener, comms, parent):
+    def __init__(self, tcp_handler, address_list, parent):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
-        self.udp_thread_listener = udp_thread_listener
-        self.comms = comms
+        self.address_list = address_list
         self.parent = parent
 
     def run(self):
         while True:
-            remote_address = self.tcp_handler.accept()
-            new_tcp_handler = TcpHandler()
-            new_tcp_thread = TcpThread(new_tcp_handler, remote_address[0], self.comms)
-            udp_port = self.udp_thread_listener.udp_handler.port
-            new_port = new_tcp_thread.tcp_handler.port
-            new_id = self.parent.game_thread.add_player()
-            print(self.parent.game_thread.players)
-            new_tcp_thread.start()
-            #TODO check auth
-            self.udp_thread_listener.add_accepted_ip((remote_address[0], None))
-            self.tcp_handler.send(DataFormat.PORTS_AND_PLAYER_ID, (new_port, udp_port, new_id))
-            self.tcp_handler.close_connection()
+            remote_ip = self.accept_new_connection() #accept new connection
+            new_tcp_thread = self.create_new_tcp_thread(remote_ip) #create new tcp thread
+            #TODO Check auth
+            #TODO Match auth to user_id and name, set those on row below
+            new_player_id = self.parent.game.add_player(user_id=42, name="Mr. Borg") #create new player
+            self.address_list.append((remote_ip, None)) #add new ip to address list
+            self.send_info_to_client(new_tcp_thread, new_player_id) #send info about ports and player_id to client
+            self.tcp_handler.close_connection() #close connection to make room for a new
+
+    def accept_new_connection(self):
+        remote_address = self.tcp_handler.accept()
+        return remote_address[0]
+
+    def create_new_tcp_thread(self, remote_ip):
+        new_tcp_handler = TcpHandler()
+        new_tcp_thread = TcpThread(new_tcp_handler, remote_ip)
+        new_tcp_thread.start()        
+        return new_tcp_thread
+
+    def send_info_to_client(tcp_thread, player_id):
+        tcp_port = tcp_thread.tcp_handler.port
+        udp_port = self.parent.udp_thread_listener.udp_handler.port
+        self.tcp_handler.send(DataFormat.PORTS_AND_PLAYER_ID, (tcp_port, udp_port, player_id))
+        
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, remote_ip, comms):
+    def __init__(self, tcp_handler, remote_ip, parent):
+        threading.Thread.__init__(self)
+        self.tcp_handler = tcp_handler
+        self.remote_ip = remote_ip
+        self.parent = parent
         self.data_format_mapping = {
             DataFormat.PLAYER_UDPATE: self.handle_player_update,
             DataFormat.TOKEN: self.handle_token,
             DataFormat.PORT: self.handle_port
         }
-        threading.Thread.__init__(self)
-        self.tcp_handler = tcp_handler
-        self.remote_ip = remote_ip
-        self.comms = comms
 
-    def send_players(self):
-        player_list = list(self.comms.players)
-        self.tcp_handler.send(DataFormat.PLAYERS, player_list)
-            
     def run(self):
         remote_address = self.tcp_handler.accept()
+        if(remote_address[0] != remote_ip): #TODO handle more harshly
+            print("Correct expected address")
+        elsep:
+            print("Wring excpeted address")
+            
         self.send_players()
 
-        #TODO if(remote_address[0] != remote_ip): handle
         while True:
             self.tcp_loop()
 
+    def send_players(self):
+        player_list = list(self.parent.parent.game.players)
+        self.tcp_handler.send(DataFormat.PLAYERS, player_list)
+            
     def tcp_loop(self):
-        self.handle_send()
-        self.handle_recv()
+        self.send()
+        self.recv()
         
-    def handle_send(self):
-        #TODO check comms queue
+    def send(self):
         pass
 
-    def handle_recv(self):
+    def recv(self):
         self.tcp_handler.socket.settimeout(0.5)
         try:
             data_format, data = self.tcp_handler.receive()
-            print("TCP handler received data: ", data)
             self.data_format_mapping[data_format](data)
         except:
             pass
-            #print("Socket timed out")
 
     def handle_player_update(self, data):
-        action, player_to = data
-        print("Should handle player update. Action: '", action, " - Player_to: ", player_to)
-        self.comms.modification_queue.put((action, player_to))
+        pass
 
     def handle_token(self, data):
         pass
@@ -109,83 +119,67 @@ class TcpThread(threading.Thread):
     def handle_port(self, data):
         pass
 
-
 class UdpThreadSender(threading.Thread):
-    def __init__(self, udp_handler, comms, address_list):
+    def __init__(self, udp_handler, address_list, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comms = comms
         self.address_list = address_list
-
+        self.parent = parent        
+    
     def run(self):
         while True:
-            player_list = list(self.comms.players)
-
-            #TEMP
-            players = list()
-            for player in player_list:
-                players.append((player.player_id, player.x, player.y, utils.unixtime()))
-            #TEMP
+            binary_data = self.make_packet_to_send()
             
-            #send
             for address in self.address_list:
                 if address[1] != None:
-                    self.udp_handler.send_players((address), players)
+                    self.udp_handler.send_binary_data(address, binary_data)
                     
-            #Sleep
             time.sleep(1/60)
-                
+            
+    def make_packet_to_send(self):
+        player_list = list(self.parent.game.players)
+        
+        players = list()
+        for player in player_list:
+            players.append((player.player_id, player.x, player.y, utils.unixtime()))
 
+        binary_data = pack_server_data(players)
+
+        return binary_data                
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comms, address_list, parent):
+    def __init__(self, udp_handler, address_list, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comms = comms
         self.address_list = address_list
         self.parent = parent
 
+    def update_address(address):
+        for i in range(len(self.address_list)):
+            if self.address_list[i][0] == address[0]:             
+                self.address_list[i] = address
+                break
+        
+            
+
     def run(self):
         while True:
-            #receive
             address, data = self.udp_handler.receive_player()
 
-            #TEMPORARY
-            #todo make nicer
             if data['client_time'] == 0:
-                print(data)
-                for i in range(len(self.address_list)):
-                    if self.address_list[i][0] == address[0]:             
-                        self.address_list[i] = address
-                        break
-                print("address_list:", self.address_list)
-            #TEMPORARY
-            
+                self.update_address(address)
             else:
-                #self.comms.add_player(data)
-                self.parent.game_thread.update(data)
-            
-            
-            #sleep
-            #time.sleep(1/60)
+                id = data['player_id']
+                self.parent.game.players[data[id].x = data['x']
+                self.parent.game.players[data[id].y = data['y']                
 
-    def add_accepted_ip(self, address):
-        print("adding ip")
-        print(self.address_list)
-        self.address_list.append(address)
-        
 
-def main():
-
-    comms = comm.ServerComm()
-                                  
-    game_thread = ServerGame(9, comms, 1/60, (800, 600))
-    network = NetworkHandler(comms, game_thread)
-
+def main():                       
+    game = ServerGame()
+    network = NetworkHandler(comms, game)
 
     network.start()
-    game_thread.start()
 
 
 if __name__ == '__main__':

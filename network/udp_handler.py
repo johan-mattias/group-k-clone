@@ -24,7 +24,10 @@ class UdpHandler:
     
     def send_players(self, address, data):
         self.socket.sendto(pack_server_data(data), address)
-    
+
+    def send_binary_data(self, address, data):
+        self.socket.sendto(data, address)
+        
     def close(self):
         self.socket.close()
 
@@ -33,7 +36,7 @@ class UdpHandler:
 user_data_struct
 ********************************'''
 user_data_struct = 'ihhq'
-user_data_struct_names = ('player_id', 'xv', 'yv', 'client_time') 
+user_data_struct_names = ('player_id', 'x', 'y', 'client_time') 
 
 def pack_user_data(data):
     #print("Pack user data", data)
