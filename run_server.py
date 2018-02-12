@@ -57,7 +57,7 @@ class MainTcpThread(threading.Thread):
 
     def create_new_tcp_thread(self, remote_ip):
         new_tcp_handler = TcpHandler()
-        new_tcp_thread = TcpThread(new_tcp_handler, remote_ip)
+        new_tcp_thread = TcpThread(new_tcp_handler, remote_ip, self)
         new_tcp_thread.start()        
         return new_tcp_thread
 
