@@ -3,10 +3,11 @@ from pyglet.window import key
 
 
 class Player(pyglet.sprite.Sprite):
-    def __init__(self, user_id, name, npc, *args, **kwargs):
+    def __init__(self, user_id, player_id, name, npc, *args, **kwargs):
         super(Player, self).__init__(*args, **kwargs)
 
         self.user_id = user_id
+        self.player_id = player_id
         self.name = name
         self.npc = npc
 

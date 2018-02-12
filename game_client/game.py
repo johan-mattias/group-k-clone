@@ -8,15 +8,19 @@ class GameWindow(pyglet.window.Window):
     def __init__(self, width=800, height=600):
         pyglet.window.Window.__init__(self, width=width, height=height)
 
-        self.player = Player(user_id=1, name="Anton", npc=False, img=self.center_image(pyglet.resource.image('player.png')), x=0, y=0, batch=None)
+        self.player = self.create_new_player(1, 1, "Anton", False)
         self.push_handlers(self.player)
         self.push_handlers(self.player.key_handler)
 
         self.player_batch = pyglet.graphics.Batch()
-        player2 = Player(user_id=2, name="Fredrik", npc=True, img=self.center_image(pyglet.resource.image('player2.png')), x=300, y=400, batch=self.player_batch)
-        player3 = Player(user_id=3, name="Filip", npc=True, img=self.center_image(pyglet.resource.image('player3.png')), x=400, y=300, batch=self.player_batch)
-        player4 = Player(user_id=4, name="Kasper", npc=True, img=self.center_image(pyglet.resource.image('player4.png')), x=500, y=500, batch=self.player_batch)
+        player2 = self.create_new_player(2, 2, "Fredrik", True, self.player_batch)
+        player3 = self.create_new_player(3, 3, "Filip", True, self.player_batch)
+        player4 = self.create_new_player(4, 4, "Kasper", True, self.player_batch)
         self.other_players = [player2, player3, player4]
+
+    def create_new_player(self, user_id, player_id, name, npc=True, batch=None):
+        player_image = self.center_image(pyglet.resource.image('player' + str(player_id % 4 + 1) + '.png'))
+        return Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0, batch=batch)
 
     @staticmethod
     def center_image(image):
