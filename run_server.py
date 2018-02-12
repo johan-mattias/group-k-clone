@@ -81,7 +81,7 @@ class TcpThread(threading.Thread):
 
     def run(self):
         remote_address = self.tcp_handler.accept()
-        if(remote_address[0] != remote_ip): #TODO handle more harshly
+        if(remote_address[0] != self.remote_ip): #TODO handle more harshly
             print("Correct expected address")
         else:
             print("Wring excpeted address")
