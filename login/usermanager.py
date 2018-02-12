@@ -1,5 +1,5 @@
-from user import User
-from databasemanager import DatabaseManager
+from login.user import User
+from login.databasemanager import DatabaseManager
 from sqlalchemy import exc, orm
 
 

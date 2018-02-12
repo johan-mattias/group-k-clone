@@ -4,7 +4,7 @@ LoginManager class module.
 
 import datetime
 import jwt
-from token_blacklist import TokenBlacklistManager
+from login.token_blacklist import TokenBlacklistManager
 
 SECRET_KEY = 'SECRET_KEY'
 

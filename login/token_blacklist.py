@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import exc, orm
-from base import Base
+from login.base import Base
 import datetime
-from databasemanager import DatabaseManager
+from login.databasemanager import DatabaseManager
 
 class _TokenBlacklist(Base):
     __tablename__ = 'blacklist_tokens'

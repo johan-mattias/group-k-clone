@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, orm
-from base import Base
+from login.base import Base
 
 # PATH_TO_DATABASE = "test.db"
 PATH_TO_DATABASE = ":memory:"

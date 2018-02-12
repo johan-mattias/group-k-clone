@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Sequence, Binary
-from base import Base
+from login.base import Base
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 import bcrypt
 
