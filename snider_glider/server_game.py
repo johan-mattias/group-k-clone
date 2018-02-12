@@ -57,7 +57,10 @@ class ServerGame(threading.Thread):
         for player_to in updates:
             self.update_player(self.players[player_to[0].player_id], player_to[0])
 
-            
+
+    def update(self, data):
+        pass
+    
     def update_player(self, player, player_to):
         dx = player_to.x_velocity
         dy = player_to.y_velocity

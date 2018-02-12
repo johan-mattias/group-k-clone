@@ -163,6 +163,7 @@ class UdpThreadListener(threading.Thread):
             
             else:
                 self.comms.add_player(data)
+                #self.parent.update(data)
             
             
             #sleep
@@ -178,7 +179,7 @@ def main():
 
     comms = comm.ServerComm()
                                   
-    game_thread = ServerGame(9, comms, 1/30, (800, 600))
+    game_thread = ServerGame(9, comms, 1/60, (800, 600))
     network = NetworkHandler(comms, game_thread)
 
 
