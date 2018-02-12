@@ -18,24 +18,22 @@ def center_image(image):
 
 
 center_image(player_image)
-player = Player(player_image, x=0, y=0, batch=None)
+player = Player(user_id=1, name="Anton", npc=False, img=player_image, x=0, y=0, batch=None)
 game_window.push_handlers(player)
 game_window.push_handlers(player.key_handler)
 
 player_batch = pyglet.graphics.Batch()
-player2 = GameObject(player_image, x=300, y=400, batch=player_batch)
-player3 = GameObject(player_image, x=400, y=300, batch=player_batch)
-player4 = GameObject(player_image, x=500, y=500, batch=player_batch)
+player2 = Player(user_id=2, name="Fredrik", npc=True, img=pyglet.resource.image('player2.png'), x=300, y=400, batch=player_batch)
+player3 = Player(user_id=3, name="Filip", npc=True, img=pyglet.resource.image('player3.png'), x=400, y=300, batch=player_batch)
+player4 = Player(user_id=4, name="Kasper", npc=True, img=pyglet.resource.image('player4.png'), x=500, y=500, batch=player_batch)
 other_players = [player2, player3, player4]
-
-game_objects = [player] + other_players
 
 
 @game_window.event
 def on_draw():
     game_window.clear()
-    for obj in game_objects:
-        obj.draw()
+    player.draw()
+    player_batch.draw()
 
 
 def update(dt):
@@ -44,7 +42,7 @@ def update(dt):
     for p in other_players:
         x = p.x + randint(-10, 10) * 10 * dt
         y = p.y + randint(-10, 10) * 10 * dt
-        p.update(x, y)
+        p.update(dt, x, y)
 
 
 if __name__ == '__main__':
