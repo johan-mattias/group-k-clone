@@ -163,8 +163,6 @@ class UdpThreadListener(threading.Thread):
             
             else:
                 self.comms.add_player(data)
-                print(data)
-
             
             
             #sleep

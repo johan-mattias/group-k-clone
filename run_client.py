@@ -140,7 +140,7 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    #print("Data received from server: ", data)
+                    print(data)
                     self.comms.add_players(data)
                 except:
                     pass
