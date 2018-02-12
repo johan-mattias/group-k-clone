@@ -159,7 +159,7 @@ class UdpThreadListener(threading.Thread):
 
     def update_address(self, address):
         for i in range(len(self.address_list)):
-            if self.address_list[i][0] == address[0]:             
+            if self.address_list[i][0] == address[0] and self.address_list[i][1] = None:
                 self.address_list[i] = address
                 break
         
