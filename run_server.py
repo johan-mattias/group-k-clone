@@ -2,7 +2,7 @@ from snider_glider.server_game import ServerGame
 from snider_glider.utils import Action
 from network import utils
 from network.tcp_handler import *
-from newwork.udp_handler import *
+from network.udp_handler import *
 import math, time, threading
 
 
@@ -83,7 +83,7 @@ class TcpThread(threading.Thread):
         remote_address = self.tcp_handler.accept()
         if(remote_address[0] != remote_ip): #TODO handle more harshly
             print("Correct expected address")
-        elsep:
+        else:
             print("Wring excpeted address")
             
         self.send_players()
@@ -171,13 +171,13 @@ class UdpThreadListener(threading.Thread):
                 self.update_address(address)
             else:
                 id = data['player_id']
-                self.parent.game.players[data[id].x = data['x']
-                self.parent.game.players[data[id].y = data['y']                
+                self.parent.game.players[id].x = data['x']
+                self.parent.game.players[id].y = data['y']                
 
 
 def main():                       
     game = ServerGame()
-    network = NetworkHandler(comms, game)
+    network = NetworkHandler(game)
 
     network.start()
 
