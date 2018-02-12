@@ -55,7 +55,7 @@ class ServerGame(threading.Thread):
             
         #Updating each player that was found in comm object
         for player_to in updates:
-            self.update_player(self.players[player_to.player_id], player_to)
+            self.update_player(self.players[0][player_to.player_id], player_to)
 
             
     def update_player(self, player, player_to):
