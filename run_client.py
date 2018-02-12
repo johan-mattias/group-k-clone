@@ -123,6 +123,7 @@ class UdpThreadListener(threading.Thread):
         self.udp_handler = udp_handler
         self.comms = comms
         self.have_received_server_data = False
+        self.game_thread = game_thread
 
     def run(self):
         while True:
@@ -140,8 +141,8 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    #self.comms.add_players(data)
-                    self.game_thread.update(data)
+                    self.comms.add_players(data)
+                    #self.game_thread.update(data)
                 except:
                     pass
             

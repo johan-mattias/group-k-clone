@@ -7,7 +7,7 @@ from snider_glider.client_gui import ClientGUI
 
 class ClientGame(threading.Thread):
 
-    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tick_rate=1/100, demo_player=False):
+    def __init__(self,thread_id, thread_name, comms, size=(600, 400),tick_rate=1/60, demo_player=False):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.thread_name = thread_name
@@ -25,21 +25,15 @@ class ClientGame(threading.Thread):
         self.WINDOW = ClientGUI(size, self)
         self.keys = py.window.key.KeyStateHandler()
         self.WINDOW.push_handlers(self.keys)
-        '''
-        if demo_player:
-            demo_player_image = py.image.load('testSprite.png')
-            demo_player_sprite = py.sprite.Sprite(demo_player_image)
-            self.scale_sprite(demo_player_sprite)
-            self.demo_player = Player(demo_player_sprite, 'McFace', (py.window.key.UP, py.window.key.RIGHT, py.window.key.DOWN, py.window.key.LEFT))
-            self.players[self.demo_player.player_id] = self.demo_player
-            self.WINDOW.add_entity(self.demo_player)
-        '''
+
         py.clock.schedule_interval(self.game_loop, self.TICK_RATE)        
 
     def update(self):
+        print("update")
         id = data['player_id']
         self.players[id].x = data['x']
-        self.players[id].y = data['y']        
+        self.players[id].y = data['y']
+        print(self.players[id])
 
     def run_game(self):
         py.app.run()
@@ -52,24 +46,25 @@ class ClientGame(threading.Thread):
         sprite.scale_y = y_scale
 
     def game_loop(self, dt):
-        #print("Running game_loop")
-        
         self.update_player_positions()
         self.handle_player_inputs()
         
-
     def run(self):
-
         while 1:
             self.game_loop(1)
             #time.sleep(self.TIC_RATE)
 
+            
     def update_player_positions(self):
         '''
         for player_to in self.comms.player_updates:
             self.players[player_to.player_id].set_position(player_to.x, player_to.y)
         '''
-        pass
+        for player in self.players:
+            player.x = player.x + player.movementSpeed[0]
+            #print(player.x)
+            player.y = player.y + player.movementSpeed[1]
+            #print(player.y)
 
     def handle_player_inputs(self):
         for player in self.players:

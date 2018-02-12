@@ -29,7 +29,7 @@ class Player:
             self.down = keys[2]
             self.left = keys[3]
             self.controllable = True
-        self.move_rate = 4
+        self.move_rate = 1
 
     def scale_sprite(self, sprite):
         x_scale = self.sprite_width/sprite.width
