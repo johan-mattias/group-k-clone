@@ -1,82 +1,52 @@
-import pyglet as py
-import threading, time
-import network.utils as net_utils
-from snider_glider.player import Player
-from snider_glider.client_gui import ClientGUI
+import pyglet
+from player import Player
+from gameobject import GameObject
+from random import randint
 
 
-class ClientGame(threading.Thread):
+class GameWindow(pyglet.window.Window):
+    def __init__(self, width=800, height=600):
+        pyglet.window.Window.__init__(self, width=width, height=height)
+        self.other_players = []
 
-    def __init__(self,thread_id, thread_name, comms, size=(800, 600),tick_rate=1/60, demo_player=False):
-        threading.Thread.__init__(self)
-        self.thread_id = thread_id
-        self.thread_name = thread_name
-        self.comms = comms
+        self.create_new_player(1, 1, "Anton", False)
+        self.push_handlers(self.player)
+        self.push_handlers(self.player.key_handler)
 
-        self.STDMOVEMENTSPEED = (2, 0)
-        self.WIDTH, self.HEIGHT = size
-        self.TICK_RATE = tick_rate
+        self.player_batch = pyglet.graphics.Batch()
+        self.create_new_player(2, 2, "Fredrik", True, self.player_batch)
+        self.create_new_player(3, 3, "Filip", True, self.player_batch)
+        self.create_new_player(4, 4, "Kasper", True, self.player_batch)
 
-        self.sprite_width = 50
-        self.sprite_height = 50
+    def create_new_player(self, user_id, player_id, name, npc=True, batch=None):
+        player_image = self.center_image(pyglet.resource.image('player' + str(player_id % 4 + 1) + '.png'))
+        player = Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0, batch=batch)
+        if npc:
+            self.other_players.append(player)
+        else:
+            self.player = player
 
-        self.players = list()
+    @staticmethod
+    def center_image(image):
+        image.anchor_x = image.width / 2
+        image.anchor_y = image.height / 2
+        return image
 
-        self.WINDOW = ClientGUI(size, self)
-        self.keys = py.window.key.KeyStateHandler()
-        self.WINDOW.push_handlers(self.keys)
+    def on_draw(self):
+        game_window.clear()
+        self.player.draw()
+        self.player_batch.draw()
 
-        py.clock.schedule_interval(self.game_loop, self.TICK_RATE)        
+    def update(self, dt):
+        self.player.update(dt)
 
-    def update(self):
-        print("update")
-        id = data['player_id']
-        self.players[id].x = data['x']
-        self.players[id].y = data['y']
-        print(self.players[id])
+        for p in self.other_players:
+            x = p.x + randint(-10, 10) * 10 * dt
+            y = p.y + randint(-10, 10) * 10 * dt
+            p.update(dt, x, y)
 
-    def run_game(self):
-        py.app.run()
 
-    def scale_sprite(self, sprite):
-        x_scale = self.sprite_width/sprite.width
-        y_scale = self.sprite_height/sprite.height
-
-        sprite.scale_x = x_scale
-        sprite.scale_y = y_scale
-
-    def game_loop(self, dt):
-        self.update_player_positions()
-        self.handle_player_inputs()
-        
-    def run(self):
-        while 1:
-            self.game_loop(1)
-            #time.sleep(self.TIC_RATE)
-
-            
-    def update_player_positions(self):
-        '''
-        for player_to in self.comms.player_updates:
-            self.players[player_to.player_id].set_position(player_to.x, player_to.y)
-        '''
-        for player in self.players:
-            player.x = player.x + player.movementSpeed[0]
-            #print(player.x)
-            player.y = player.y + player.movementSpeed[1]
-            #print(player.y)
-
-    def handle_player_inputs(self):
-        for player in self.players:
-            if player.controllable:
-                player.move(self.keys)
-                self.comms.set_local_player(player.to_transfer_object())
-                self.comms.time = net_utils.unixtime()
-                break
-
-    def add_player(self, player):
-        self.players.append(player)
-        self.WINDOW.add_entity(player)        
-        
-    def get_gui(self):
-        return py
+if __name__ == '__main__':
+    game_window = GameWindow(width=800, height=600)
+    pyglet.clock.schedule_interval(game_window.update, 1 / 120.0)
+    pyglet.app.run()
