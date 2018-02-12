@@ -162,8 +162,8 @@ class UdpThreadListener(threading.Thread):
             #TEMPORARY
             
             else:
-                self.comms.add_player(data)
-                #self.parent.update(data)
+                #self.comms.add_player(data)
+                self.parent.update(data)
             
             
             #sleep

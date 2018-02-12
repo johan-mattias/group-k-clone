@@ -48,6 +48,7 @@ class ServerGame(threading.Thread):
         return new_id
 
     def update_players(self):
+        '''
         #Gettings player_to objects from comm object
         updates = []
         while not self.comm.player_updates.empty():
@@ -56,14 +57,17 @@ class ServerGame(threading.Thread):
         #Updating each player that was found in comm object
         for player_to in updates:
             self.update_player(self.players[player_to[0].player_id], player_to[0])
+         '''
+        for player in self.players:
+            self.update_player(player)
 
 
     def update(self, data):
-        pass
+        self.players[data['player_id']].movementSpeed = (data['xv'], data['yv'])
     
-    def update_player(self, player, player_to):
-        dx = player_to.x_velocity
-        dy = player_to.y_velocity
+    def update_player(self, player):
+        dx = player.movementSpeed[0]
+        dy = player.movementSpeed[1]
 
         player.x = player.x + dx
         player.y = player.y + dy
