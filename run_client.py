@@ -1,4 +1,5 @@
 from network import utils
+from network.comm import *
 from network.udp_handler import *
 from network.tcp_handler import *
 from snider_glider.game import *
@@ -9,10 +10,11 @@ import threading, queue, time
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, game_window):
+    def __init__(self, game_window, shared_communication):
         threading.Thread.__init__(self)
         #commincation between thread object
         self.game_window = game_window
+        self.shared_communication = shared_communication
         #create handlers (sockets)
         self.tcp_handler = TcpHandler()
         self.udp_handler_listener = UdpHandler()
@@ -20,22 +22,23 @@ class NetworkHandler(threading.Thread):
 
         self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self)
         self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self)
-        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self)
+        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self, self.shared_communication)
 
     def run(self):
         self.tcp_thread.start()
         #self.udp_thread_listener.start()
-        #self.udp_thread_sender.start()
+        self.udp_thread_sender.start()
 
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, server_address, parent):
+    def __init__(self, tcp_handler, server_address, parent, shared_communication):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.server_address = server_address
         self.udp_port = None
         self.player_id = None
         self.parent = parent
+        self.shared_communication = shared_communication
 
     def connect_to_server(self):
         self.tcp_handler.connect(self.server_address)
@@ -52,15 +55,13 @@ class TcpThread(threading.Thread):
 
     def get_players(self):
         data = self.tcp_handler.receive()
-        print (data)
         players = data[1]
-        print(players)
         for player in players:
-            print("adding", player, "own id:",self.player_id)
-            self.parent.game_window.create_new_player(player.player_id,
-                                                      player.user_id,
-                                                      player.name,
-                                                      player.player_id == self.player_id)
+            self.shared_communication.modification_queue.put((Action.ADD,
+                                                             (player.user_id,
+                                                              player.player_id,
+                                                              player.name,
+                                                              not player.player_id == self.player_id)))
             
     def run(self):
         self.connect_to_server()
@@ -77,11 +78,13 @@ class UdpThreadSender(threading.Thread):
 
     def run(self):
         while True:
-            #send
-            #todo not static address
+            if (player != None):
+                print(self.parent.game_window.player.x, self.parent.game_window.player.y)
+            '''
             player = self.comms.local_player
             if player != None:
                 self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, self.comms.time))
+            '''
             #Sleep
             time.sleep(1/60)
 
@@ -119,12 +122,13 @@ class UdpThreadListener(threading.Thread):
 
 
 def main():
-    game_window = GameWindow(width=800, height=600)
-    network_handler = NetworkHandler(game_window)
+    shared_communication = ClientComm()
+    game_window = GameWindow(shared_communication, width=800, height=600)
+    network_handler = NetworkHandler(game_window, shared_communication)
     
     network_handler.start()
     
-    pyglet.clock.schedule_interval(game_window.update, 1 / 120.0)
+    pyglet.clock.schedule_interval(game_window.game_loop, 1 / 120.0)
     pyglet.app.run()
 
 if __name__ == '__main__':

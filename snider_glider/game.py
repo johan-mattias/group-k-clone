@@ -1,11 +1,14 @@
 import pyglet
 from snider_glider.player import Player
+from snider_glider.utils import Action
 from random import randint
 
 
 class GameWindow(pyglet.window.Window):
-    def __init__(self, width=800, height=600):
+    def __init__(self, shared_communication, width=800, height=600):
         pyglet.window.Window.__init__(self, width=width, height=height)
+        self.shared_communication = shared_communication
+        
         self.other_players = []
         self.player = None
         #self.create_new_player(1, 1, "Anton", False)
@@ -15,15 +18,16 @@ class GameWindow(pyglet.window.Window):
         #self.create_new_player(3, 3, "Filip", True, self.player_batch)
         #self.create_new_player(4, 4, "Kasper", True, self.player_batch)
         self.player_images = []
-        for i in range(1, 4):
-            self.player_images.append(self.center_image(pyglet.resource.image('player' + str(i) + '.png')))
+        for i in range(1, 5):
+            self.player_images.append(self.center_image(pyglet.resource.image('snider_glider/player' + str(i) + '.png')))
+
 
     def create_new_player(self, user_id, player_id, name, npc=True):
         batch = self.player_batch if npc else None
         player_image = self.player_images[player_id % 4 + 1]
-
         player = Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0,
                         batch=batch)
+        
         if npc:
             self.other_players.append(player)
         else:
@@ -52,7 +56,17 @@ class GameWindow(pyglet.window.Window):
             y = p.y + randint(-10, 10) * 10 * dt
             p.update(dt, x, y)
 
-
+    def check_modification_queue(self):
+        while not self.shared_communication.modification_queue.empty():
+            action, player = self.shared_communication.modification_queue.get()
+            
+            if action == Action.ADD:
+                self.create_new_player(*player)
+                
+    def game_loop(self, dt):
+        self.check_modification_queue()
+        self.update(dt)
+        
 if __name__ == '__main__':
     game_window = GameWindow(width=800, height=600)
     pyglet.clock.schedule_interval(game_window.update, 1 / 120.0)
