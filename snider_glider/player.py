@@ -78,7 +78,7 @@ class Player:
         return "pid: " + str(self.player_id) + " name: " + str(self.name) +  " image: " + str(self.image)
     
 class PlayerTO:
-    def __init__(self, player_id, user_id, x=None, y=None, x_velocity=None, y_velocity=None, color=None, name=None, image = None):
+    def __init__(self, player_id, user_id=None, x=None, y=None, x_velocity=None, y_velocity=None, color=None, name=None, image = None):
         self.player_id = player_id
         self.user_id = user_id
         self.x = x

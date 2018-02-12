@@ -111,7 +111,8 @@ class UdpThreadSender(threading.Thread):
             #send
             #todo not static address
             player = self.comms.local_player
-            self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, self.comms.time))
+            if player != None:
+                self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, self.comms.time))
             #Sleep
             time.sleep(1/60)
 
@@ -139,7 +140,7 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    print("Data received from server: ", data)
+                    #print("Data received from server: ", data)
                     self.comms.add_players(data)
                 except:
                     pass
