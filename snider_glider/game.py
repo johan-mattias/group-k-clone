@@ -15,9 +15,15 @@ class GameWindow(pyglet.window.Window):
         #self.create_new_player(3, 3, "Filip", True, self.player_batch)
         #self.create_new_player(4, 4, "Kasper", True, self.player_batch)
 
-    def create_new_player(self, user_id, player_id, name, npc=True, batch=None):
-        player_image = self.center_image(pyglet.resource.image('player' + str(player_id % 4 + 1) + '.png'))
+    def create_new_player(self, user_id, player_id, name, npc=True):
+        batch = None
+        if npc:
+            batch =self.player_batch
+
+
+        player_image = self.center_image(pyglet.resource.image('snider_glider/player' + str(player_id % 4 + 1) + '.png'))
         player = Player(user_id=user_id, player_id=player_id, name=name, npc=npc, img=player_image, x=0, y=0, batch=batch)
+        
         if npc:
             self.other_players.append(player)
         else:

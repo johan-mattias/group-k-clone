@@ -55,26 +55,18 @@ class TcpThread(threading.Thread):
         print (data)
         players = data[1]
         print(players)
-        '''
         for player in players:
-            new_player = player_from_player_to(player)
-            if new_player.player_id == self.player_id:
-                gui = self.game_thread.get_gui()                    
-                new_player.up = gui.window.key.UP
-                new_player.right = gui.window.key.RIGHT
-                new_player.down = gui.window.key.DOWN
-                new_player.left = gui.window.key.LEFT
-                new_player.controllable = True
-                new_player.sprite = PLAYER_SPRITE
-                self.game_thread.scale_sprite(PLAYER_SPRITE)
-            self.game_thread.add_player(new_player)
-        '''
+            print("adding", player, "own id:",self.player_id)
+            self.parent.game_window.create_new_player(player.player_id,
+                                                      player.user_id,
+                                                      player.name,
+                                                      player.player_id == self.player_id)
             
     def run(self):
         self.connect_to_server()
         self.connect_to_new_tcp_socket()
         self.get_players()
-        print(self.parent.game_window.players)
+        #print(self.parent.game_window.players)
 
 
 class UdpThreadSender(threading.Thread):

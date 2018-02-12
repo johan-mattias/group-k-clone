@@ -84,7 +84,9 @@ class TcpThread(threading.Thread):
         if(remote_address[0] != self.remote_ip): #TODO handle more harshly
             print("Correct expected address")
         else:
-            print("Wring excpeted address")
+            print("Wrong excpeted address")
+            print("Expected:", self.ip)
+            print("Got:", remote_address[0])
             
         self.send_players()
 
