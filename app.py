@@ -1,14 +1,16 @@
-from usermanager import UserManager
-from loginmanager import LoginManager
+from login.usermanager import UserManager
+from login.loginmanager import LoginManager
 from flask import Flask, request
 
 app = Flask(__name__)
 um = UserManager()
 lm = LoginManager()
 
+
 @app.route("/")
 def home():
     return "Home page"
+
 
 @app.route("/auth/register", methods=["POST"])
 def register():
@@ -29,6 +31,7 @@ def register():
     token = lm.encode_auth_token(new_user.id)
 
     return token, 200
+
 
 @app.route("/auth/login", methods=["POST"])
 def login():
@@ -57,6 +60,7 @@ def login():
         else:
             return "Wrong password", 401
     return "Please enter a valid username and password", 401
+
 
 @app.route("/auth/logout")
 def logout():
