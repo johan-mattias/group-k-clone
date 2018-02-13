@@ -7,7 +7,7 @@ class ServerGame():
 
     def add_player(self, user_id, name):
         new_id = len(self.players)
-        new_player = Player(new_id, name, 0, 0)
+        new_player = Player(new_id, user_id, name, 0, 0)
         self.players.append(new_player)
         return new_id
 

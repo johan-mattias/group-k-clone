@@ -4,7 +4,7 @@ from enum import Enum
 
 class DataFormat(Enum):
     TOKEN = 0
-    PLAYER_UDPATE = 1
+    PLAYER_UPDATE = 1
     PORT = 2
     PORTS = 3
     PORTS_AND_PLAYER_ID = 4

@@ -4,7 +4,11 @@ from network import utils
 from network.tcp_handler import *
 from network.udp_handler import *
 import math, time, threading
+import random
 
+def generate_name():
+    names = ["Morty", "Rick", "Jack Black", "Anders Borg", "Lil'pheelyCheeseJr","Mad lad", "Nice guy", "Nyac cat"]
+    return names[random.randint(0, len(names) - 1)]
 
 class NetworkHandler(threading.Thread):
     def __init__(self, game):
@@ -39,6 +43,7 @@ class MainTcpThread(threading.Thread):
         self.tcp_handler = tcp_handler
         self.address_list = address_list
         self.parent = parent
+        self.children = list()
 
     def run(self):
         while True:
@@ -46,22 +51,30 @@ class MainTcpThread(threading.Thread):
             new_tcp_thread = self.create_new_tcp_thread(remote_ip) #create new tcp thread
             #TODO Check auth
             #TODO Match auth to user_id and name, set those on row below
-            new_player_id = self.parent.game.add_player(user_id=42, name="Mr. Borg") #create new player
+            random_name = generate_name()
+            new_player_id = self.parent.game.add_player(user_id=42, name=random_name) #create new player
+            self.send_new_player_to_other_clients(new_player_id)#woop woop
             self.address_list.append((remote_ip, None)) #add new ip to address list
             self.send_info_to_client(new_tcp_thread, new_player_id) #send info about ports and player_id to client
+            self.children.append(new_tcp_thread) #add new tcp thread to children list            
             self.tcp_handler.close_connection() #close connection to make room for a new
 
+    def send_new_player_to_other_clients(self, player_id):
+        player = self.parent.game.players[player_id]
+        for child in self.children:
+            child.send_add_player(player)
+            
     def accept_new_connection(self):
         remote_address = self.tcp_handler.accept()
         return remote_address[0]
 
     def create_new_tcp_thread(self, remote_ip):
         new_tcp_handler = TcpHandler()
-        new_tcp_thread = TcpThread(new_tcp_handler, remote_ip)
+        new_tcp_thread = TcpThread(new_tcp_handler, remote_ip, self)
         new_tcp_thread.start()        
         return new_tcp_thread
 
-    def send_info_to_client(tcp_thread, player_id):
+    def send_info_to_client(self, tcp_thread, player_id):
         tcp_port = tcp_thread.tcp_handler.port
         udp_port = self.parent.udp_thread_listener.udp_handler.port
         self.tcp_handler.send(DataFormat.PORTS_AND_PLAYER_ID, (tcp_port, udp_port, player_id))
@@ -73,51 +86,42 @@ class TcpThread(threading.Thread):
         self.tcp_handler = tcp_handler
         self.remote_ip = remote_ip
         self.parent = parent
-        self.data_format_mapping = {
-            DataFormat.PLAYER_UDPATE: self.handle_player_update,
-            DataFormat.TOKEN: self.handle_token,
-            DataFormat.PORT: self.handle_port
-        }
 
     def run(self):
         remote_address = self.tcp_handler.accept()
-        if(remote_address[0] != remote_ip): #TODO handle more harshly
+        if(remote_address[0] == self.remote_ip): #TODO handle more harshly
             print("Correct expected address")
         else:
-            print("Wring excpeted address")
+            print("Wrong excpeted address")
+            print("Expected:", self.remote_ip)
+            print("Got:", remote_address[0])
             
         self.send_players()
-
-        while True:
-            self.tcp_loop()
-
-    def send_players(self):
-        player_list = list(self.parent.parent.game.players)
-        self.tcp_handler.send(DataFormat.PLAYERS, player_list)
-            
-    def tcp_loop(self):
-        self.send()
-        self.recv()
         
-    def send(self):
-        pass
+        while True:
+            self.receive()
 
-    def recv(self):
-        self.tcp_handler.socket.settimeout(0.5)
+
+    def receive(self):
+        time.sleep(1)
+    
+    def send_players(self):
         try:
-            data_format, data = self.tcp_handler.receive()
-            self.data_format_mapping[data_format](data)
+            player_list = list(self.parent.parent.game.players)
+            self.tcp_handler.send(DataFormat.PLAYERS, player_list)
         except:
             pass
 
-    def handle_player_update(self, data):
-        pass
+    def send_add_player(self, player):
+        try:
+            self.tcp_handler.send(DataFormat.PLAYER_UPDATE,
+                                  (Action.ADD, player))
+        except:
+            pass
+                              
+            
+        
 
-    def handle_token(self, data):
-        pass
-
-    def handle_port(self, data):
-        pass
 
 class UdpThreadSender(threading.Thread):
     def __init__(self, udp_handler, address_list, parent):
@@ -155,24 +159,28 @@ class UdpThreadListener(threading.Thread):
         self.address_list = address_list
         self.parent = parent
 
-    def update_address(address):
+    def update_address(self, address):
+        print(address)
         for i in range(len(self.address_list)):
-            if self.address_list[i][0] == address[0]:             
+            if self.address_list[i][0] == address[0] and self.address_list[i][1] == None:
                 self.address_list[i] = address
                 break
+        print(self.address_list)
         
             
 
     def run(self):
         while True:
             address, data = self.udp_handler.receive_player()
-
             if data['client_time'] == 0:
                 self.update_address(address)
             else:
                 id = data['player_id']
-                self.parent.game.players[id].x = data['x']
-                self.parent.game.players[id].y = data['y']                
+                try:
+                    self.parent.game.players[id].x = data['x']
+                    self.parent.game.players[id].y = data['y']
+                except:
+                    pass
 
 
 def main():                       

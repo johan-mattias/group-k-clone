@@ -1,27 +1,28 @@
-from network import utils, udp_handler, comm
+from network import utils
+from network.comm import *
+from network.udp_handler import *
 from network.tcp_handler import *
-from snider_glider.game import ClientGame
+from snider_glider.game import *
 from snider_glider.player import *
 from snider_glider.utils import Action
 import threading, queue, time
 
 SERVER_MAIN_TCP_ADDRESS = ("antoncarlsson.se", 12000)
-PLAYER_SPRITE = pyglet.sprite.Sprite(pyglet.image.load('testSprite.png'))
 
 class NetworkHandler(threading.Thread):
-    def __init__(self, comms, game_thread):
+    def __init__(self, game_window, shared_communication):
         threading.Thread.__init__(self)
         #commincation between thread object
-        self.comms = comms
-        self.game_thread = game_thread
+        self.game_window = game_window
+        self.shared_communication = shared_communication
         #create handlers (sockets)
         self.tcp_handler = TcpHandler()
-        self.udp_handler_listener = udp_handler.UdpHandler()
-        self.udp_handler_sender = udp_handler.UdpHandler()
+        self.udp_handler_listener = UdpHandler()
+        self.udp_handler_sender = UdpHandler()
 
-        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self.comms, self.game_thread)
-        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self.comms)
-        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self.comms, self.game_thread)
+        self.udp_thread_listener = UdpThreadListener(self.udp_handler_listener, self)
+        self.udp_thread_sender = UdpThreadSender(self.udp_handler_sender, self)
+        self.tcp_thread = TcpThread(self.tcp_handler, SERVER_MAIN_TCP_ADDRESS, self, self.shared_communication)
 
     def run(self):
         self.tcp_thread.start()
@@ -30,14 +31,14 @@ class NetworkHandler(threading.Thread):
 
 
 class TcpThread(threading.Thread):
-    def __init__(self, tcp_handler, server_address, comms, game_thread):
+    def __init__(self, tcp_handler, server_address, parent, shared_communication):
         threading.Thread.__init__(self)
         self.tcp_handler = tcp_handler
         self.server_address = server_address
-        self.comms = comms
         self.udp_port = None
         self.player_id = None
-        self.game_thread = game_thread
+        self.parent = parent
+        self.shared_communication = shared_communication
 
     def connect_to_server(self):
         self.tcp_handler.connect(self.server_address)
@@ -56,49 +57,64 @@ class TcpThread(threading.Thread):
         data = self.tcp_handler.receive()
         players = data[1]
         for player in players:
-            new_player = player_from_player_to(player)
-            if new_player.player_id == self.player_id:
-                gui = self.game_thread.get_gui()                    
-                new_player.up = gui.window.key.UP
-                new_player.right = gui.window.key.RIGHT
-                new_player.down = gui.window.key.DOWN
-                new_player.left = gui.window.key.LEFT
-                new_player.controllable = True
-                new_player.sprite = PLAYER_SPRITE
-                self.game_thread.scale_sprite(PLAYER_SPRITE)
-            self.game_thread.add_player(new_player)
+            self.shared_communication.modification_queue.put((Action.ADD,
+                                                              (player.user_id,
+                                                               player.player_id,
+                                                               player.name,
+                                                               not player.player_id == self.player_id)))
             
     def run(self):
+        #Inital stuff to do when connecting
         self.connect_to_server()
         self.connect_to_new_tcp_socket()
         self.get_players()
-        print(self.game_thread.players)
+        
+        #tcp loop
+        while True:
+            self.receive()
+
+    def receive(self):
+        self.tcp_handler.socket.settimeout(0.5)
+        try:
+            data = self.tcp_handler.receive()
+            print("GOT",data)
+            if data[0] == DataFormat.PLAYER_UPDATE:
+                update_type = data[1][0]
+                player = data[1][1]
+                self.shared_communication.modification_queue.put((update_type,
+                                                                  (player.user_id,
+                                                                   player.player_id,
+                                                                   player.name,
+                                                                   True)))
+        except Exception as e:
+            pass
 
 
 class UdpThreadSender(threading.Thread):
-    def __init__(self, udp_handler, comms):
+    def __init__(self, udp_handler, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comms = comms
+        self.parent = parent
 
     def run(self):
         while True:
-            #send
-            #todo not static address
-            player = self.comms.local_player
+            player = self.parent.game_window.player            
             if player != None:
-                self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id, player.x_velocity, player.y_velocity, self.comms.time))
+                self.udp_handler.send_player(("antoncarlsson.se", 12000),
+                                             (player.player_id,
+                                              int(player.x),
+                                              int(player.y),
+                                              utils.unixtime()))
             #Sleep
             time.sleep(1/60)
 
 
 class UdpThreadListener(threading.Thread):
-    def __init__(self, udp_handler, comms, game_thread):
+    def __init__(self, udp_handler, parent):
         threading.Thread.__init__(self)
         self.udp_handler = udp_handler
-        self.comms = comms
         self.have_received_server_data = False
-        self.game_thread = game_thread
+        self.parent = parent
 
     def run(self):
         while True:
@@ -116,7 +132,11 @@ class UdpThreadListener(threading.Thread):
             else:
                 try:
                     address, data = self.udp_handler.receive_players()
-                    self.comms.add_players(data)
+                    players = self.parent.game_window.other_players
+                    for player in players:          
+                        player.x = data[player.player_id]['x']
+                        player.y = data[player.player_id]['y']
+                    #self.comms.add_players(data)
                     #self.game_thread.update(data)
                 except:
                     pass
@@ -126,21 +146,14 @@ class UdpThreadListener(threading.Thread):
 
 
 def main():
-    communication_object = comm.ClientComm()
-
-    game_thread = ClientGame(2, "Game client", communication_object, demo_player=True)
-    network_handler = NetworkHandler(communication_object, game_thread)
+    shared_communication = ClientComm()
+    game_window = GameWindow(shared_communication, width=800, height=600)
+    network_handler = NetworkHandler(game_window, shared_communication)
     
     network_handler.start()
-
-    gui = game_thread.get_gui()    
-    game_thread.start()
-
-    gui.gl.glClearColor(1, 1, 1, 1)
-    gui.app.run()
-
-
-
+    
+    pyglet.clock.schedule_interval(game_window.game_loop, 1 / 60.0)
+    pyglet.app.run()
 
 if __name__ == '__main__':
     main()
