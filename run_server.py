@@ -4,7 +4,11 @@ from network import utils
 from network.tcp_handler import *
 from network.udp_handler import *
 import math, time, threading
+import random
 
+def generate_name():
+    names = ["Morty", "Rick", "Jack Black", "Anders Borg", "Lil'pheelyCheeseJr","Mad lad", "Nice guy", "Nyac cat"]
+    return names[random.ranint(0, len(names) - 1)]
 
 class NetworkHandler(threading.Thread):
     def __init__(self, game):
@@ -47,7 +51,8 @@ class MainTcpThread(threading.Thread):
             new_tcp_thread = self.create_new_tcp_thread(remote_ip) #create new tcp thread
             #TODO Check auth
             #TODO Match auth to user_id and name, set those on row below
-            new_player_id = self.parent.game.add_player(user_id=42, name="Mr. Borg") #create new player
+            random_name = generate_name()
+            new_player_id = self.parent.game.add_player(user_id=42, name=random_name) #create new player
             self.send_new_player_to_other_clients(new_player_id)#woop woop
             self.address_list.append((remote_ip, None)) #add new ip to address list
             self.send_info_to_client(new_tcp_thread, new_player_id) #send info about ports and player_id to client
