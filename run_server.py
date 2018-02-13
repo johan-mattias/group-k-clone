@@ -81,15 +81,10 @@ class TcpThread(threading.Thread):
         self.tcp_handler = tcp_handler
         self.remote_ip = remote_ip
         self.parent = parent
-        self.data_format_mapping = {
-            DataFormat.PLAYER_UDPATE: self.handle_player_update,
-            DataFormat.TOKEN: self.handle_token,
-            DataFormat.PORT: self.handle_port
-        }
 
     def run(self):
         remote_address = self.tcp_handler.accept()
-        if(remote_address[0] != self.remote_ip): #TODO handle more harshly
+        if(remote_address[0] == self.remote_ip): #TODO handle more harshly
             print("Correct expected address")
         else:
             print("Wrong excpeted address")
