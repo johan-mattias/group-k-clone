@@ -136,8 +136,6 @@ class UdpThreadListener(threading.Thread):
                     for player in players:          
                         player.x = data[player.player_id]['x']
                         player.y = data[player.player_id]['y']
-                        player.label.x = player.x
-                        player.label.y = player.y + 25
                     #self.comms.add_players(data)
                     #self.game_thread.update(data)
                 except:

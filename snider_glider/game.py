@@ -57,6 +57,11 @@ class GameWindow(pyglet.window.Window):
         if self.player != None:
             self.player.update(dt)
 
+        for player in self.other_players:
+            player.label.x = player.x
+            player.label.y = player.y + 25
+
+
     def check_modification_queue(self):
         while not self.shared_communication.modification_queue.empty():
             action, player = self.shared_communication.modification_queue.get()
