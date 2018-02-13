@@ -123,7 +123,7 @@ class Button(Spr):
                                              color=convert_hashColor_to_RGBA(color),
                                              anchor_x='center')
         self.func = func
-        print(f'button: {self.func} x: {self.x}-{self.x+self.width} y: {self.y}-{self.y+self.height}')
+        # print(f'button: {self.func} x: {self.x}-{self.x+self.width} y: {self.y}-{self.y+self.height}')
 
     def _draw(self):
         self.draw()
