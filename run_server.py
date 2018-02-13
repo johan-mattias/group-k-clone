@@ -114,6 +114,7 @@ class TcpThread(threading.Thread):
 
     def send_add_player(self, player):
         try:
+            print("Sending", player)
             self.tcp_handler.send(DataFormat.PLAYER_UPDATE,
                                   (Action.ADD, player))
         except:

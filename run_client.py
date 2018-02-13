@@ -70,7 +70,7 @@ class TcpThread(threading.Thread):
         self.get_players()
         
         #tcp loop
-        while True():
+        while True:
             self.receive()
 
     def receive(self):
@@ -87,6 +87,7 @@ class TcpThread(threading.Thread):
                                                                    player.name,
                                                                    True)))
         except:
+            print("noting received")
             pass
 
 
