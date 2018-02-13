@@ -8,7 +8,7 @@ import random
 
 def generate_name():
     names = ["Morty", "Rick", "Jack Black", "Anders Borg", "Lil'pheelyCheeseJr","Mad lad", "Nice guy", "Nyac cat"]
-    return names[random.ranint(0, len(names) - 1)]
+    return names[random.randint(0, len(names) - 1)]
 
 class NetworkHandler(threading.Thread):
     def __init__(self, game):
