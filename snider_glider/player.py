@@ -29,9 +29,6 @@ class Player(pyglet.sprite.Sprite):
         if self.npc:
             self.x = x
             self.y = y
-
-            self.label.x = self.x
-            self.label.y = self.y + 25
         else:
             if self.key_handler[key.A]:
                 self.x -= self.velocity_x * dt

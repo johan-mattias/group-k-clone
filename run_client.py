@@ -134,7 +134,10 @@ class UdpThreadListener(threading.Thread):
                     address, data = self.udp_handler.receive_players()
                     players = self.parent.game_window.other_players
                     for player in players:          
-                        player.update(1 / 60.0, data[player.player_id]['x'], data[player.player_id]['y'])
+                        player.x = data[player.player_id]['x']
+                        player.y = data[player.player_id]['y']
+                        player.label.x = player.x
+                        player.label.y = player.y + 25
                     #self.comms.add_players(data)
                     #self.game_thread.update(data)
                 except:
