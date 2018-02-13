@@ -45,13 +45,13 @@ class MainTcpThread(threading.Thread):
         while True:
             remote_ip = self.accept_new_connection() #accept new connection
             new_tcp_thread = self.create_new_tcp_thread(remote_ip) #create new tcp thread
-            self.children.append(new_tcp_thread) #add new tcp thread to children list
             #TODO Check auth
             #TODO Match auth to user_id and name, set those on row below
             new_player_id = self.parent.game.add_player(user_id=42, name="Mr. Borg") #create new player
             self.send_new_player_to_other_clients(new_player_id)#woop woop
             self.address_list.append((remote_ip, None)) #add new ip to address list
             self.send_info_to_client(new_tcp_thread, new_player_id) #send info about ports and player_id to client
+            self.children.append(new_tcp_thread) #add new tcp thread to children list            
             self.tcp_handler.close_connection() #close connection to make room for a new
 
     def send_new_player_to_other_clients(self, player_id):
@@ -92,13 +92,13 @@ class TcpThread(threading.Thread):
             print("Got:", remote_address[0])
             
         self.send_players()
-        '''
+        
         while True:
             self.receive()
-        '''
+
 
     def receive(self):
-        pass
+        time.sleep(1)
     
     def send_players(self):
         try:
@@ -109,7 +109,7 @@ class TcpThread(threading.Thread):
 
     def send_add_player(self, player):
         try:
-            print("Sending", player)
+            print("SENDING", player)
             self.tcp_handler.send(DataFormat.PLAYER_UPDATE,
                                   (Action.ADD, player))
         except:
