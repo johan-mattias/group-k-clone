@@ -86,8 +86,7 @@ class TcpThread(threading.Thread):
                                                                    player.player_id,
                                                                    player.name,
                                                                    True)))
-        except:
-            print("noting received")
+        except Exception as e:
             pass
 
 
