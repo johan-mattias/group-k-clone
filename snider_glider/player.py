@@ -3,13 +3,14 @@ from pyglet.window import key
 
 
 class Player(pyglet.sprite.Sprite):
-    def __init__(self, user_id, player_id, name, npc, *args, **kwargs):
+    def __init__(self, user_id, player_id, name, npc, label, *args, **kwargs):
         super(Player, self).__init__(*args, **kwargs)
 
         self.user_id = user_id
         self.player_id = player_id
         self.name = name
         self.npc = npc
+        self.label = label
 
         self.jumping = False
         self.velocity_x, self.velocity_y = 400.0, 30.0
@@ -28,6 +29,9 @@ class Player(pyglet.sprite.Sprite):
         if self.npc:
             self.x = x
             self.y = y
+
+            self.label.x = self.x
+            self.label.y = self.y + 25
         else:
             if self.key_handler[key.A]:
                 self.x -= self.velocity_x * dt
@@ -47,15 +51,15 @@ class Player(pyglet.sprite.Sprite):
         max_x = 800 - self.image.width / 2
         max_y = 600 - self.image.height / 2
 
-        if self.x < min_x:
+        if self.x <= min_x:
             self.x = min_x
-        if self.x > max_x:
+        if self.x >= max_x:
             self.x = max_x
-        if self.y < min_y:
+        if self.y <= min_y:
             self.y = min_y
             self.jumping = False
             self.velocity_y = 30.0
-        if self.y > max_y:
+        if self.y >= max_y:
             self.y = max_y
             
     def __repr__(self):

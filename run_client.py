@@ -113,8 +113,7 @@ class UdpThreadListener(threading.Thread):
                     address, data = self.udp_handler.receive_players()
                     players = self.parent.game_window.other_players
                     for player in players:          
-                        player.x = data[player.player_id]['x']
-                        player.y = data[player.player_id]['y']
+                        player.update(1 / 60.0, data[player.player_id]['x'], data[player.player_id]['y'])
                     #self.comms.add_players(data)
                     #self.game_thread.update(data)
                 except:
@@ -131,7 +130,7 @@ def main():
     
     network_handler.start()
     
-    pyglet.clock.schedule_interval(game_window.game_loop, 1 / 120.0)
+    pyglet.clock.schedule_interval(game_window.game_loop, 1 / 60.0)
     pyglet.app.run()
 
 if __name__ == '__main__':
