@@ -58,16 +58,36 @@ class TcpThread(threading.Thread):
         players = data[1]
         for player in players:
             self.shared_communication.modification_queue.put((Action.ADD,
-                                                             (player.user_id,
-                                                              player.player_id,
-                                                              player.name,
-                                                              not player.player_id == self.player_id)))
+                                                              (player.user_id,
+                                                               player.player_id,
+                                                               player.name,
+                                                               not player.player_id == self.player_id)))
             
     def run(self):
+        #Inital stuff to do when connecting
         self.connect_to_server()
         self.connect_to_new_tcp_socket()
         self.get_players()
-        #print(self.parent.game_window.players)
+        
+        #tcp loop
+        while True:
+            self.receive()
+
+    def receive(self):
+        self.tcp_handler.socket.settimeout(0.5)
+        try:
+            data = self.tcp_handler.receive()
+            print("GOT",data)
+            if data[0] == DataFormat.PLAYER_UPDATE:
+                update_type = data[1][0]
+                player = data[1][1]
+                self.shared_communication.modification_queue.put((update_type,
+                                                                  (player.user_id,
+                                                                   player.player_id,
+                                                                   player.name,
+                                                                   True)))
+        except Exception as e:
+            pass
 
 
 class UdpThreadSender(threading.Thread):
@@ -80,10 +100,11 @@ class UdpThreadSender(threading.Thread):
         while True:
             player = self.parent.game_window.player            
             if player != None:
-                self.udp_handler.send_player(("antoncarlsson.se", 12000), (player.player_id,
-                                                                           int(player.x),
-                                                                           int(player.y),
-                                                                           utils.unixtime()))
+                self.udp_handler.send_player(("antoncarlsson.se", 12000),
+                                             (player.player_id,
+                                              int(player.x),
+                                              int(player.y),
+                                              utils.unixtime()))
             #Sleep
             time.sleep(1/60)
 
