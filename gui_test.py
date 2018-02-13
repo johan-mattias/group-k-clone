@@ -23,7 +23,6 @@ def convert_hashColor_to_RGBA(color):
     return color
 
 class Rectangle(object):
-    '''Draws a rectangle into a batch.'''
     def __init__(self, x1, y1, x2, y2, batch):
         self.vertex_list = batch.add(4, pyglet.gl.GL_QUADS, None,
             ('v2i', [x1, y1, x2, y1, x2, y2, x1, y2]),
@@ -69,18 +68,8 @@ class Spr(pyglet.sprite.Sprite):
         else:
             self.texture = texture
         super(Spr, self).__init__(self.texture)
-
-        ## Normally, objects in graphics have their anchor in the bottom left corner.
-        ## This means that all X and Y cordinates relate to the bottom left corner of
-        ## your object as positioned from the bottom left corner of your application-screen.
-        ##
-        ## We can override this and move the anchor to the WIDTH/2 (aka center of the image).
-        ## And since Spr is a class only ment for generating a background-image to your "intro screen" etc
-        ## This only affects this class aka the background, so the background gets positioned by it's center.
         self.image.anchor_x = self.image.width / 2
         self.image.anchor_y = self.image.height / 2
-
-        ## And this sets the position.
         self.x = x
         self.y = y
 
@@ -101,7 +90,10 @@ class Button(Spr):
                  bg_color='#C4C4C4',
                  color='#000000'):
         super(Button, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
-
+        self.x1 = x
+        self.x2 = x+width
+        self.y1 = y
+        self.y2 = y+height
         self.screen_text = pyglet.text.Label(text,
                                              font_size=font_size,
                                              font_name=font_name,
@@ -113,6 +105,11 @@ class Button(Spr):
                                              color=convert_hashColor_to_RGBA(color),
                                              anchor_x='center')
         self.func = func
+        print(func)
+
+    # def hit_test(self, x, y):
+    #     return (self.x1 <= x <= self.x2 and
+    #             self.y1 <= y <= self.y2)
 
     def _draw(self):
         self.draw()
@@ -171,22 +168,66 @@ class LoginRegisterScreen(Spr):
         for button in self.buttons:
             button._draw()
 
+class MenuScreen(Spr):
+    def __init__(self,
+                 font_size=20,
+                 font_name=__FONTS__,
+                 texture=None,
+                 width=300,
+                 height = 235,
+                 x=300,
+                 y=__HEIGHT__//2,
+                 bg_color='#FFFFFF',
+                 color='#FFFFFF',
+                 header_text='HEADER TEXT',
+                 buttons=[]):
+        super(MenuScreen, self).__init__(texture, width=width, height=height, x=x, y=y, color=bg_color)
+
+        self.screen_text = pyglet.text.Label(header_text,
+                                             font_size=font_size,
+                                             font_name=font_name,
+                                             x=x-152,
+                                             y=y+height//2+1,
+                                             multiline=False,
+                                             width=width,
+                                             height=height,
+                                             color=convert_hashColor_to_RGBA(color),
+                                             anchor_x='left')
+
+        button__offset = 60
+
+        self.buttons = []
+        for button in buttons:
+            self.buttons.append(Button(func=button["func"], text=button["text"], y=__HEIGHT__//2 + button__offset))
+            button__offset += - __BUTTON_HEIGHT__ - __BUTTON_HEIGHT__//2
+
+    def _draw(self):
+        self.draw()
+        self.screen_text.draw()
+        for button in self.buttons:
+            button._draw()
+
 class Window(pyglet.window.Window):
     def __init__(self, refreshrate):
         super(Window, self).__init__(__WIDTH__, __HEIGHT__, caption='Text entry', vsync = False)
         self.alive = 1
         self.refreshrate = refreshrate
         self.screen_has_been_shown_since = time()
+        self.login_client = Client(__SERVER_URL__)
 
         self.batch = pyglet.graphics.Batch()
-        self.current_screen = LoginRegisterScreen(batch=self.batch,
-                                                    height=235,
-                                                    height_offset=60,
-                                                    header_text='LOG IN',
-                                                    inputs=[{'text': 'ENTER USERNAME'},
-                                                            {'text': 'ENTER PASSWORD'}],
-                                                    buttons=[{'text': 'BACK', 'func': 'main_menu'},
-                                                            {'text': 'LOG IN', 'func': 'login'}])
+        self.current_screen = MenuScreen(header_text='GAME MENU',
+                                        buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
+                                                 {'text': 'REGISTER', 'func': 'register_menu'},
+                                                 {'text': 'QUIT', 'func': 'quit'}])
+        # self.current_screen = LoginRegisterScreen(batch=self.batch,
+        #                                             height=235,
+        #                                             height_offset=60,
+        #                                             header_text='LOG IN',
+        #                                             inputs=[{'text': 'ENTER USERNAME'},
+        #                                                     {'text': 'ENTER PASSWORD'}],
+        #                                             buttons=[{'text': 'BACK', 'func': 'main_menu'},
+        #                                                     {'text': 'LOG IN', 'func': 'login'}])
         # self.labels = [
         #     pyglet.text.Label('Name', x=10, y=100, anchor_y='bottom',
         #                       color=(0, 0, 0, 255), batch=self.batch),
@@ -219,19 +260,80 @@ class Window(pyglet.window.Window):
             self.focus.caret.mark = 0
             self.focus.caret.position = len(self.focus.document.text)
 
-    def on_mouse_press(self, x, y, button, modifiers):
-        for widget in self.current_screen.text_inputs:
-            if widget.hit_test(x, y):
-                # self.set_focus(widget)
-                try:
-                    widget.delete()
-                except Exception:
-                    pass
-                del widget
-                self.clear()
-                self.batch.draw()
-                break
+    def _login_menu(self):
+        login_response = self.login_client.login()
+        if login_response == "ok":
+            print("Log in with token successful")
         else:
+            print(login_response)
+            self.current_screen = LoginRegisterScreen(self.batch,
+                                                     height=235,
+                                                     height_offset=60,
+                                                     header_text='LOG IN',
+                                                     inputs=[{'text': 'ENTER USERNAME'},
+                                                             {'text': 'ENTER PASSWORD'}],
+                                                     buttons=[{'text': 'BACK', 'func': 'main_menu'},
+                                                              {'text': 'LOG IN', 'func': 'login'}])
+
+    def _main_menu(self):
+        # try:
+        self.current_screen = MenuScreen(header_text='GAME MENU',
+                                        buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
+                                                 {'text': 'REGISTER', 'func': 'register_menu'},
+                                                 {'text': 'QUIT', 'func': 'quit'}])
+            # self.current_screen
+        # except Exception:
+        #     pass
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if hasattr(self.current_screen, 'text_inputs'):
+            for text_input in self.current_screen.text_inputs:
+                if text_input.hit_test(x, y):
+                    self.set_focus(text_input)
+                    break
+                    self.set_focus(None)
+                    return
+
+        print(button)
+        if button == pyglet.window.mouse.LEFT:
+            print('in here!')
+            for menu_button in self.current_screen.buttons:
+                if x > (menu_button.x - menu_button.width//2) and x < (menu_button.x + menu_button.width//2):
+                    if y > (menu_button.y - menu_button.height//2) and y < (menu_button.y + menu_button.height//2):
+                        response = menu_button.choice()
+                        print(response)
+                        self.current_screen = None
+                        if response == "login_menu":
+                            self._login_menu()
+                        elif response == "login":
+                            self._login()
+                        elif response == "register_menu":
+                            self._register_menu()
+                        elif response == "register":
+                            self._register()
+                        elif response == "main_menu":
+                            self._main_menu()
+                        elif response == "quit":
+                            self._quit()
+                        self.clear()
+                        self.batch.draw()
+                        self.flip()
+
+            # for button in self.current_screen.buttons:
+            #     if button.hit_test(x, y):
+            #         print('YOLO', button.func)
+            #         for text_input in self.current_screen.text_inputs:
+            #             try:
+            #                 text_input.delete()
+            #             except Exception:
+            #                 pass
+            #             del text_input
+            #         self.clear()
+            #         self.batch.draw()
+            #         self.current_screen = MenuScreen(header_text='GAME MENU',
+            #                             buttons=[{'text': 'LOG IN', 'func': 'login_menu'},
+            #                                      {'text': 'REGISTER', 'func': 'register_menu'},
+            #                                      {'text': 'QUIT', 'func': 'quit'}])
             self.set_focus(None)
 
         # if self.focus:
@@ -256,13 +358,13 @@ class Window(pyglet.window.Window):
             else:
                 dir = 1
 
-            if self.focus in self.text_inputs:
-                i = self.text_inputs.index(self.focus)
+            if self.focus in self.current_screen.text_inputs:
+                i = self.current_screen.text_inputs.index(self.focus)
             else:
                 i = 0
                 dir = 0
 
-            self.set_focus(self.text_inputs[(i + dir) % len(self.text_inputs)])
+            self.set_focus(self.current_screen.text_inputs[(i + dir) % len(self.current_screen.text_inputs)])
 
         elif symbol == pyglet.window.key.ESCAPE:
             pyglet.app.exit()
@@ -278,7 +380,10 @@ class Window(pyglet.window.Window):
     def render(self):
         self.clear()
         self.batch.draw()
-        self.current_screen._draw() # <-- Important, draws the current screen
+        try:
+            self.current_screen._draw() # <-- Important, draws the current screen
+        except Exception:
+            pass
         self.flip()
 
     def on_close(self):
